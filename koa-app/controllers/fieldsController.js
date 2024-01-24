@@ -1,4 +1,4 @@
-const FieldModel = require('../models/fieldModel');
+const FieldModel = require('../../shared/models/fieldModel');
 
 exports.createField = async (ctx) => {
   try {

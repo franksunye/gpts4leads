@@ -1,4 +1,4 @@
-const UsageTrackingModel = require('../models/usageTrackingModel');
+const UsageTrackingModel = require('../../shared/models/usageTrackingModel');
 
 exports.createUsageTracking = async (ctx) => {
   try {

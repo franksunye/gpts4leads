@@ -1,4 +1,4 @@
-const TenantPlanModel = require('../models/tenantPlanModel');
+const TenantPlanModel = require('../../shared/models/tenantPlanModel');
 
 exports.createTenantPlan = async (ctx) => {
   try {

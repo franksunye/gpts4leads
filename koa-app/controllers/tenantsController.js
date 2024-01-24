@@ -1,4 +1,4 @@
-const TenantModel = require('../models/tenantModel');
+const TenantModel = require('../../shared/models/tenantModel');
 
 exports.createTenant = async (ctx) => {
   const newTenant = ctx.request.body;

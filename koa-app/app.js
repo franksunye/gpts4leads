@@ -18,9 +18,9 @@ const secret = 'your-secret'; // 这应该是一个环境变量
 app.use(bodyParser());
 
 // JWT认证中间件
-app.use(jwt({ secret }).unless({
-  path: [/^\/public/, /^\/login/] // 定义不需要身份验证的路径
-}));
+// app.use(jwt({ secret }).unless({
+//   path: [/^\/public/, /^\/login/] // 定义不需要身份验证的路径
+// }));
 
 app.use(tenantsRoutes.routes());
 app.use(formsRoutes.routes());

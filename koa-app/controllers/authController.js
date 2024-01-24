@@ -1,6 +1,6 @@
 // /server/controllers/authController.js
 const jwt = require('jsonwebtoken');
-const UserModel = require('../models/userModel');
+const UserModel = require('../../shared/models/userModel');
 const secret = 'your-secret'; // 应该放在环境变量中
 
 exports.login = async (ctx) => {

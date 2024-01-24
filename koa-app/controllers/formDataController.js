@@ -1,4 +1,4 @@
-const FormDataModel = require('../models/formDataModel');
+const FormDataModel = require('../../shared/models/formDataModel');
 
 exports.createFormData = async (ctx) => {
   try {

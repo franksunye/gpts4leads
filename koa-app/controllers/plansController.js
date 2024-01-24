@@ -1,4 +1,4 @@
-const PlanModel = require('../models/planModel');
+const PlanModel = require('../../shared/models/planModel');
 
 exports.createPlan = async (ctx) => {
   try {

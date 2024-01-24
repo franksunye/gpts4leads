@@ -1,36 +1,36 @@
-const FormModel = require('../models/formModel');
+const UserModel = require('../../shared/models/userModel');
 
-exports.createForm = async (ctx) => {
+exports.createUser = async (ctx) => {
   try {
-    const newForm = ctx.request.body;
-    const id = await FormModel.create(newForm);
+    const newUser = ctx.request.body;
+    const id = await UserModel.create(newUser);
     ctx.status = 201;
-    ctx.body = { id, ...newForm };
+    ctx.body = { id, ...newUser };
   } catch (error) {
     ctx.status = 500;
     ctx.body = { message: error.message };
   }
 };
 
-exports.getAllForms = async (ctx) => {
+exports.getAllUsers = async (ctx) => {
   try {
-    const forms = await FormModel.findAll();
-    ctx.body = forms;
+    const users = await UserModel.findAll();
+    ctx.body = users;
   } catch (error) {
     ctx.status = 500;
     ctx.body = { message: error.message };
   }
 };
 
-exports.getFormById = async (ctx) => {
+exports.getUserById = async (ctx) => {
   try {
     const { id } = ctx.params;
-    const form = await FormModel.findById(id);
-    if (form) {
-      ctx.body = form;
+    const user = await UserModel.findById(id);
+    if (user) {
+      ctx.body = user;
     } else {
       ctx.status = 404;
-      ctx.body = { message: 'Form not found' };
+      ctx.body = { message: 'User not found' };
     }
   } catch (error) {
     ctx.status = 500;
@@ -38,15 +38,15 @@ exports.getFormById = async (ctx) => {
   }
 };
 
-exports.updateForm = async (ctx) => {
+exports.updateUser = async (ctx) => {
   try {
     const { id } = ctx.params;
-    const updated = await FormModel.update(id, ctx.request.body);
+    const updated = await UserModel.update(id, ctx.request.body);
     if (updated) {
       ctx.body = { id, ...ctx.request.body };
     } else {
       ctx.status = 404;
-      ctx.body = { message: 'Form not found' };
+      ctx.body = { message: 'User not found' };
     }
   } catch (error) {
     ctx.status = 500;
@@ -54,16 +54,16 @@ exports.updateForm = async (ctx) => {
   }
 };
 
-exports.deleteForm = async (ctx) => {
+exports.deleteUser = async (ctx) => {
   try {
     const { id } = ctx.params;
-    const deleted = await FormModel.remove(id);
+    const deleted = await UserModel.remove(id);
     if (deleted) {
       ctx.status = 200;
-      ctx.body = { message: 'Form deleted' };
+      ctx.body = { message: 'User deleted' };
     } else {
       ctx.status = 404;
-      ctx.body = { message: 'Form not found' };
+      ctx.body = { message: 'User not found' };
     }
   } catch (error) {
     ctx.status = 500;

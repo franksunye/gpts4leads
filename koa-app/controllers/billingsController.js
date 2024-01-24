@@ -1,4 +1,4 @@
-const BillingModel = require('../models/billingModel');
+const BillingModel = require('../../shared/models/billingModel');
 
 exports.createBilling = async (ctx) => {
   try {
