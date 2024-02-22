@@ -13,7 +13,7 @@ const findById = (id) => {
 };
 
 const update = (id, fieldData) => {
-  return knex('Fields').where('FieldID', id).update(fieldData);
+  return knex('Fields').where('FieldID', id).update({...fieldData, UpdatedAt: knex.fn.now()});
 };
 
 const remove = (id) => {

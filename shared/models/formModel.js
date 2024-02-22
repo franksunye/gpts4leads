@@ -13,7 +13,7 @@ const findById = (id) => {
 };
 
 const update = (id, formData) => {
-  return knex('Forms').where('FormID', id).update(formData);
+  return knex('Forms').where('FormID', id).update({...formData, UpdatedAt: knex.fn.now()});
 };
 
 const remove = (id) => {

@@ -13,7 +13,7 @@ const findById = (id) => {
 };
 
 const update = (id, userData) => {
-  return knex('Users').where('UserID', id).update(userData);
+  return knex('Users').where('UserID', id).update({...userData, UpdatedAt: knex.fn.now()});
 };
 
 const remove = (id) => {
