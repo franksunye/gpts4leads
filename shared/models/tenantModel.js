@@ -13,7 +13,9 @@ const findById = (id) => {
 };
 
 const update = (id, tenantData) => {
-  return knex('Tenants').where('TenantID', id).update(tenantData);
+  return knex('Tenants')
+    .where('TenantID', id)
+    .update({ ...tenantData, UpdatedAt: knex.fn.now() });
 };
 
 const remove = (id) => {
