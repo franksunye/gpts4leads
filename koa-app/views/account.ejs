@@ -1,0 +1,16 @@
+<!-- views/account.ejs -->
+
+<%- include('partials/header', { title: 'Admin Dashboard' }) %>
+    <%- include('partials/navbar') %>
+
+        <div class="container">
+            <h1>Account & Billing</h1>
+            <p>Account and billing information goes here.</p>
+            <!-- 页面特定内容 -->
+            <script async src="https://js.stripe.com/v3/pricing-table.js"></script>
+            <stripe-pricing-table pricing-table-id="prctbl_1OmvDA2AzALaGMQIOx9IcQ76"
+                publishable-key="pk_test_kHX3a2zYKxzbY96pQXnjEqpB">
+            </stripe-pricing-table>
+        </div>
+
+        <%- include('partials/footer') %>

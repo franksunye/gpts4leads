@@ -12,6 +12,14 @@ const findById = (id) => {
   return knex('Users').select('*').where('UserID', id).first();
 };
 
+const findByUsername = (username) => {
+  return knex('Users').select('*').where('Username', username).first();
+};
+
+const findByEmail = (email) => {
+  return knex('Users').select('*').where('Email', email).first();
+};
+
 const update = (id, userData) => {
   return knex('Users').where('UserID', id).update({...userData, UpdatedAt: knex.fn.now()});
 };
@@ -24,6 +32,8 @@ module.exports = {
   create,
   findAll,
   findById,
+  findByUsername,
+  findByEmail,
   update,
   remove
 };

@@ -1,4 +1,6 @@
 const FormModel = require('../../shared/models/formModel');
+const formService = require('../../shared/services/formService');
+const logger = require('../../shared/utils/logger');
 
 exports.createForm = async (ctx) => {
   try {
@@ -67,6 +69,20 @@ exports.deleteForm = async (ctx) => {
     }
   } catch (error) {
     ctx.status = 500;
+    ctx.body = { message: error.message };
+  }
+};
+
+exports.getFormsByTenantId = async (ctx) => {
+  try {
+    const tenantId = ctx.params.tenantId; //   从URL参数中获取租户ID
+    logger.info(`[formService.js] getFormsByTenantId: Fetching forms for tenantId: ${tenantId}`);
+    const forms = await formService.getFormsByTenantId(tenantId);
+    logger.info(`[formService.js] getFormsByTenantId: Successfully fetched forms for tenantId: ${tenantId}`);
+    ctx.body = forms;
+  } catch (error) {
+    logger.error(`[formService.js] getFormsByTenantId: Error fetching forms for tenantId: ${tenantId}. Error: ${error.message}`);
+    ctx.status =  500;
     ctx.body = { message: error.message };
   }
 };

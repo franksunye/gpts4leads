@@ -1,0 +1,41 @@
+<!-- views/forms.ejs -->
+
+<%- include('partials/header', { title: 'Admin Dashboard' }) %>
+<%- include('partials/navbar') %>
+
+<div class="container">
+    <h1>Forms</h1>
+    <p>This is the forms list for the current tenant.</p>
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Forms</h3>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-vcenter">
+                    <thead>
+                        <tr>
+                            <th>Form Name</th>
+                            <th>Description</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% forms.forEach(function(form) { %>
+                            <tr>
+                                <td><%= form.Name %></td>
+                                <td><%= form.Description %></td>
+                                <td>
+                                    <a href="/forms/<%= form.FormID %>/edit" class="btn btn-primary btn-sm">Edit</a>
+                                    <a href="/forms/<%= form.FormID %>/delete" class="btn btn-danger btn-sm">Delete</a>
+                                </td>
+                            </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('partials/footer') %>

@@ -20,10 +20,15 @@ const remove = (id) => {
   return knex('Forms').where('FormID', id).del();
 };
 
+const findByTenantId = (tenantId) => {
+  return knex('Forms').where('TenantID', tenantId).select('*');
+};
+
 module.exports = {
   create,
   findAll,
   findById,
   update,
-  remove
+  remove,
+  findByTenantId //  添加新的方法到模块导出
 };
