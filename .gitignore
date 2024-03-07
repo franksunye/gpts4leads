@@ -3546,3 +3546,7 @@ node_modules/zod/lib/helpers/util.d.ts
 node_modules/zod/lib/helpers/util.js
 node_modules/zod/lib/locales/en.d.ts
 node_modules/zod/lib/locales/en.js
+node_modules
+logs/.3d812ca619917cd5b4d9c623532b2c7760d91afd-audit.json
+logs/.fbe8ff2f30ad9615d460dfd78d6331b68a01211c-audit.json
+logs/application-2024-03-07.log
