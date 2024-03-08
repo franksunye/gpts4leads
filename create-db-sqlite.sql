@@ -1,40 +1,23 @@
--- 创建租户表
-CREATE TABLE Tenants (
-    TenantID INTEGER PRIMARY KEY AUTOINCREMENT,
-    Name TEXT NOT NULL,
-    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-    UpdatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-    CreatedBy TEXT,
-    IsDeleted BOOLEAN DEFAULT 0
-);
+--
+-- File generated with SQLiteStudio v3.4.4 on 周五 3月 8 10:46:14 2024
+--
+-- Text encoding used: System
+--
+PRAGMA foreign_keys = off;
+BEGIN TRANSACTION;
 
--- 创建用户表
-CREATE TABLE Users (
-    UserID INTEGER PRIMARY KEY AUTOINCREMENT,
+-- Table: Billings
+CREATE TABLE Billings (
+    BillingID INTEGER PRIMARY KEY AUTOINCREMENT,
     TenantID INTEGER,
-    Username TEXT NOT NULL,
-    Password TEXT NOT NULL,
-    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-    UpdatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-    CreatedBy TEXT,
-    IsDeleted BOOLEAN DEFAULT 0,
+    Amount DECIMAL,
+    BillingDate DATETIME DEFAULT CURRENT_TIMESTAMP,
+    DueDate DATETIME,
+    Status TEXT,
     FOREIGN KEY(TenantID) REFERENCES Tenants(TenantID)
 );
 
--- 创建表单表
-CREATE TABLE Forms (
-    FormID INTEGER PRIMARY KEY AUTOINCREMENT,
-    TenantID INTEGER,
-    Name TEXT NOT NULL,
-    Description TEXT,
-    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-    UpdatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-    CreatedBy TEXT,
-    IsDeleted BOOLEAN DEFAULT 0,
-    FOREIGN KEY(TenantID) REFERENCES Tenants(TenantID)
-);
-
--- 创建字段表
+-- Table: Fields
 CREATE TABLE Fields (
     FieldID INTEGER PRIMARY KEY AUTOINCREMENT,
     FormID INTEGER,
@@ -48,7 +31,7 @@ CREATE TABLE Fields (
     FOREIGN KEY(FormID) REFERENCES Forms(FormID)
 );
 
--- 创建表单数据表
+-- Table: FormData
 CREATE TABLE FormData (
     EntryID INTEGER PRIMARY KEY AUTOINCREMENT,
     FormID INTEGER,
@@ -60,7 +43,20 @@ CREATE TABLE FormData (
     FOREIGN KEY(FormID) REFERENCES Forms(FormID)
 );
 
--- 创建套餐表
+-- Table: Forms
+CREATE TABLE Forms (
+    FormID INTEGER PRIMARY KEY AUTOINCREMENT,
+    TenantID INTEGER,
+    Name TEXT NOT NULL,
+    Description TEXT,
+    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    CreatedBy TEXT,
+    IsDeleted BOOLEAN DEFAULT 0,
+    FOREIGN KEY(TenantID) REFERENCES Tenants(TenantID)
+);
+
+-- Table: Plans
 CREATE TABLE Plans (
     PlanID INTEGER PRIMARY KEY AUTOINCREMENT,
     Name TEXT NOT NULL,
@@ -72,7 +68,7 @@ CREATE TABLE Plans (
     UpdatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
--- 创建租户套餐关联表
+-- Table: TenantPlans
 CREATE TABLE TenantPlans (
     TenantPlanID INTEGER PRIMARY KEY AUTOINCREMENT,
     TenantID INTEGER,
@@ -84,18 +80,17 @@ CREATE TABLE TenantPlans (
     FOREIGN KEY(PlanID) REFERENCES Plans(PlanID)
 );
 
--- 创建账单表
-CREATE TABLE Billings (
-    BillingID INTEGER PRIMARY KEY AUTOINCREMENT,
-    TenantID INTEGER,
-    Amount DECIMAL,
-    BillingDate DATETIME DEFAULT CURRENT_TIMESTAMP,
-    DueDate DATETIME,
-    Status TEXT,
-    FOREIGN KEY(TenantID) REFERENCES Tenants(TenantID)
-);
+-- Table: tenants
+CREATE TABLE Tenants (
+            TenantID INTEGER PRIMARY KEY AUTOINCREMENT,
+            Name TEXT NOT NULL,
+            CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+            UpdatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+            CreatedBy TEXT,
+            IsDeleted BOOLEAN DEFAULT 0
+          , StripeCustomerId TEXT);
 
--- 创建使用量跟踪表
+-- Table: UsageTracking
 CREATE TABLE UsageTracking (
     UsageID INTEGER PRIMARY KEY AUTOINCREMENT,
     TenantID INTEGER,
@@ -106,5 +101,18 @@ CREATE TABLE UsageTracking (
     FOREIGN KEY(TenantID) REFERENCES Tenants(TenantID)
 );
 
-ALTER TABLE Users
-ADD COLUMN email VARCHAR(255);
+-- Table: Users
+CREATE TABLE Users (
+    UserID INTEGER PRIMARY KEY AUTOINCREMENT,
+    TenantID INTEGER,
+    Username TEXT NOT NULL,
+    Password TEXT NOT NULL,
+    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    CreatedBy TEXT,
+    IsDeleted BOOLEAN DEFAULT 0, Email TEXT,
+    FOREIGN KEY(TenantID) REFERENCES Tenants(TenantID)
+);
+
+COMMIT TRANSACTION;
+PRAGMA foreign_keys = on;
