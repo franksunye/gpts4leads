@@ -17,8 +17,10 @@ const createUserWithTenant = async (nickname, email) => {
     const tenantCreationResult = await tenantModel.create({
       Name: nickname,
     });
+    logger.info(`[userService.js] createUserWithTenant: Tenant creation result: ${JSON.stringify(tenantCreationResult)}`);
 
-    const tenantId = tenantCreationResult[0];
+    // const tenantId = tenantCreationResult[0];
+    const tenantId = tenantCreationResult.TenantID;
     const tenant = await tenantModel.findById(tenantId);
     logger.info(`[userService.js] createUserWithTenant: Successfully created tenant with ID: ${tenantId}`);
 
@@ -33,7 +35,8 @@ const createUserWithTenant = async (nickname, email) => {
       TenantID: tenantId,
     });
 
-    const userId = userCreationResult[0];
+    // const userId = userCreationResult[0];
+    const userId = userCreationResult.UserID;
     const user = await userModel.findById(userId);
     logger.info(`[userService.js] createUserWithTenant: Successfully created user with ID: ${userId} and tenant with ID: ${tenantId}`);
 

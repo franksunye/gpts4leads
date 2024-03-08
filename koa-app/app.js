@@ -1,3 +1,24 @@
+const logger = require('../shared/utils/logger'); 
+
+// 处理命令行参数
+const args = process.argv.slice(2);
+logger.info(`[app.js] Command line arguments: ${args}`);
+
+const dbArg = args.find(arg => arg.startsWith('--db='));
+let dbType = 'sqlite3'; // 默认为SQLite
+
+if (dbArg) {
+  logger.info(`[app.js] Found --db argument: ${dbArg}`);
+  dbType = dbArg.split('=')[1];
+} else {
+  logger.info(`[app.js] No --db argument found, using default: ${dbType}`);
+}
+
+// 设置环境变量
+logger.info(`[app.js] Before setting DB_CLIENT: ${process.env.DB_CLIENT}`);
+process.env.DB_CLIENT = dbType;
+logger.info(`[app.js] After setting DB_CLIENT: ${process.env.DB_CLIENT}`);
+
 const Koa = require('koa');
 const bodyParser = require('koa-bodyparser');
 // const jwt = require('koa-jwt');
@@ -19,7 +40,7 @@ const usageTrackingRoutes = require('./routes/usageTrackingRoutes');
 const adminDashboardRoutes = require('./routes/adminDashboardRoutes');
 // const authRoutes = require('./routes/auth');
 const authRoutes = require('./routes/auth0');
-const passwordRoutes = require('./routes/passwordRoutes');
+// const passwordRoutes = require('./routes/passwordRoutes');
 const subscriptionsRoutes = require('./routes/subscriptionsRoutes');
 
 const app = new Koa();
@@ -70,7 +91,7 @@ app.use(usageTrackingRoutes.routes());
 
 app.use(adminDashboardRoutes.routes());
 app.use(authRoutes.routes());
-app.use(passwordRoutes.routes());
+// app.use(passwordRoutes.routes());
 app.use(subscriptionsRoutes.routes());
 
 const port = process.env.PORT || 3000;
