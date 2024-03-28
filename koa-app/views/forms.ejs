@@ -23,7 +23,9 @@
                     <tbody>
                         <% forms.forEach(function(form) { %>
                             <tr>
-                                <td><%= form.Name %></td>
+                                <td>
+                                    <a href="/submissions/<%= tenantId %>/form/<%= form.FormID %>" target="_blank"><%= form.Name %></a>
+                                </td>
                                 <td><%= form.Description %></td>
                                 <td>
                                     <a href="/forms/<%= form.FormID %>/edit" class="btn btn-primary btn-sm">Edit</a>
@@ -34,6 +36,39 @@
                     </tbody>
                 </table>
             </div>
+        </div>
+        <!-- 显示条目数量 -->
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <div style="margin-left: 20px; color: #6c757d;">
+                        Showing <%= (page - 1) * limit + 1 %> to <%= Math.min(page * limit, total) %> of <%= total %> entries
+                    </div>
+                </div>
+                <div class="col-md-6" style="text-align: right;">
+                    <div style="margin-right: 20px;">
+                        <!-- 分页导航 -->
+                        <nav aria-label="Page navigation example">
+                            <ul class="pagination">
+                                <!-- 修改Prev按钮，使其在第一页时变为不可点击 -->
+                                <li class="page-item <%= page === 1 ? 'disabled' : '' %>">
+                                    <a class="page-link" href="<%= page === 1 ? '#' : '/forms/' + tenantId + '?page=' + (page - 1) %>">< prev</a>
+                                </li>
+                                <% for (let i = 1; i <= totalPages; i++) { %>
+                                    <li class="page-item <%= i === page ? 'active' : '' %>">
+                                        <a class="page-link" href="/forms/<%= tenantId %>?page=<%= i %>"><%= i %></a>
+                                    </li>
+                                <% } %>
+                                <!-- 修改Next按钮，使其在最后一页时变为不可点击 -->
+                                <li class="page-item <%= page === totalPages ? 'disabled' : '' %>">
+                                    <a class="page-link" href="<%= page === totalPages ? '#' : '/forms/' + tenantId + '?page=' + (page + 1) %>">next ></a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
         </div>
     </div>
 </div>

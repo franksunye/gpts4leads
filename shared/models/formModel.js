@@ -24,11 +24,27 @@ const findByTenantId = (tenantId) => {
   return knex('Forms').where('TenantID', tenantId).select('*');
 };
 
+const findByTenantIdWithPagination = (tenantId, offset = 0, limit = 10) => {
+  return knex('Forms')
+     .where('TenantID', tenantId)
+     .select('*')
+     .offset(offset)
+     .limit(limit);
+ };
+
+const countFormsByTenantId = (tenantId) => {
+  return knex('Forms')
+     .where('TenantID', tenantId)
+     .count('* as count');
+};
+
 module.exports = {
   create,
   findAll,
   findById,
   update,
   remove,
-  findByTenantId //  添加新的方法到模块导出
+  findByTenantId,
+  findByTenantIdWithPagination,
+  countFormsByTenantId,
 };

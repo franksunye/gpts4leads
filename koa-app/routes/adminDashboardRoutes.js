@@ -1,7 +1,8 @@
 // adminDashboardRoutes.js
 const Router = require('koa-router');
-const formsService = require('../../shared/services/formService');
 const logger = require('../../shared/utils/logger');
+const formsService = require('../../shared/services/formService');
+const formDataService = require('../../shared/services/formDataService');
 
 const router = new Router();
 
@@ -65,15 +66,35 @@ router.get('/home/:tenantId', checkAuth, async (ctx) => {
 // 添加Forms页面的路由
 router.get('/forms/:tenantId', checkAuth, async (ctx) => {
   const tenantId = ctx.params.tenantId;
+  const page = parseInt(ctx.query.page) || 1; // 获取页码，默认为1
+  const limit = parseInt(ctx.query.limit) || 5; // 每页记录数，默认为10
+  const offset = (page - 1) * limit; // 计算偏移量
+
+  logger.debug(`[adminDashboardRoutes.js] Forms route: Debugging info for tenantId: ${tenantId}`);
+  logger.debug(`[adminDashboardRoutes.js] Forms route: Page: ${page}, Type: ${typeof page}`);
+  logger.debug(`[adminDashboardRoutes.js] Forms route: Limit: ${limit}, Type: ${typeof limit}`);
+  logger.debug(`[adminDashboardRoutes.js] Forms route: Offset: ${offset}, Type: ${typeof offset}`);
+    
   try {
      logger.info(`[adminDashboardRoutes.js] Forms route: Fetching forms for tenantId: ${tenantId}`);
-     const forms = await formsService.getFormsByTenantId(tenantId);
+     const forms = await formsService.getFormsByTenantIdWithPagination(tenantId, offset, limit);
      logger.info(`[adminDashboardRoutes.js] Forms route: Successfully fetched forms for tenantId: ${tenantId}`);
+
+     const total = await formsService.countFormsByTenantId(tenantId);
+     logger.debug(`[adminDashboardRoutes.js] Forms route: Total forms: ${total}`);
+
+     const totalPages = Math.ceil(total / limit);
+     logger.debug(`[adminDashboardRoutes.js] Forms route: Total pages: ${totalPages}`);
+ 
      await ctx.render('forms', {
          title: 'Forms Dashboard',
          user: ctx.session.user || null,
          forms: forms,
-         tenantId: tenantId
+         tenantId: tenantId,
+         page: page,
+         totalPages: totalPages,
+         limit, limit,
+         total,total,
      });
   } catch (error) {
      logger.error(`[adminDashboardRoutes.js] Forms route: Error fetching forms for tenantId: ${tenantId}. Error: ${error.message}`);
@@ -81,15 +102,50 @@ router.get('/forms/:tenantId', checkAuth, async (ctx) => {
   }
  });
 
+ router.get('/submissions/:tenantId/form/:formId', checkAuth, async (ctx) => {
+  const tenantId = ctx.params.tenantId;
+  const formId = ctx.params.formId;
+  const page = parseInt(ctx.query.page) || 1; // 获取页码，默认为1
+  const limit = parseInt(ctx.query.limit) || 5; // 每页记录数，默认为10
+  const offset = (page - 1) * limit; // 计算偏移量
+
+  try {
+      const formData = await formDataService.getFormDataByIdWithPagination(formId, offset, limit);
+      // logger.debug(`[adminDashboardRoutes.js] Form data for formId: ${formId} - ${JSON.stringify(formData, null, 2)}`);
+      const total = await formDataService.countFormDataByFormId(formId);
+      const totalPages = Math.ceil(total / limit);
+
+      await ctx.render('form', {
+          title: 'Form Submission',
+          user: ctx.session.user || null,
+          tenantId: tenantId,
+          formId: formId,
+          formData: formData,
+          page: page,
+          totalPages: totalPages,
+          limit: limit,
+          total: total
+      });
+  } catch (error) {
+      logger.error(`[adminDashboardRoutes.js] Form submission route: Error rendering form submission page for tenantId: ${tenantId} and formId: ${formId}. Error: ${error.message}`);
+      throw error;
+  }
+});
+
 // 添加Account & Billing页面的路由
 router.get('/account/:tenantId', checkAuth, async (ctx) => {
   const tenantId = ctx.params.tenantId;
   try {
      logger.info(`[adminDashboardRoutes.js] Account route: Rendering account page for tenantId: ${tenantId}`);
+     const userEmail = ctx.session.user.email;
+     logger.debug(`[adminDashboardRoutes.js] Account route: User email for tenantId ${tenantId}: ${userEmail}`);
+
      await ctx.render('account', {
        title: 'Account & Billing',
        user: ctx.session.user || null,
-       tenantId: tenantId
+       subscription: ctx.session.subscription || null,
+       tenantId: tenantId,
+       userEmail: userEmail
      });
   } catch (error) {
      logger.error(`[adminDashboardRoutes.js] Account route: Error rendering account page for tenantId: ${tenantId}. Error: ${error.message}`);

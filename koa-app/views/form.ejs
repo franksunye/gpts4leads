@@ -1,0 +1,79 @@
+<!-- views/form.ejs -->
+
+<%- include('partials/header', { title: 'Form Submission' }) %>
+<%- include('partials/navbar') %>
+<%
+// 定义预设的显示字段顺序数组
+const displayedFieldsOrder = ['EntryID', 'FormID', 'Customer Name', 'Feedback', 'CreatedAt', 'UpdatedAt', 'SubmittedBy', 'IsDeleted'];
+%>
+
+<div class="container">
+    <h1>Form Submission</h1>
+    <p>This is the form data list for the current form.</p>
+
+    <!-- 表格开始 -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Form Data</h3>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-vcenter">
+                    <thead>
+                        <tr>
+                            <% Object.keys(formData[0]).forEach(function(key) { %>
+                                <th><%= key %></th>
+                            <% }); %>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% formData.forEach(function(data) { %>
+                            <tr>
+                                <% Object.keys(data).forEach(function(key) { %>
+                                    <td><%= data[key] %></td>
+                                <% }); %>
+                            </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    <!-- 显示条目数量 -->
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <div style="margin-left: 20px; color: #6c757d;">
+                    Showing <%= (page - 1) * limit + 1 %> to <%= Math.min(page * limit, total) %> of <%= total %> entries
+                </div>
+            </div>
+            <div class="col-md-6" style="text-align: right;">
+                <div style="margin-right: 20px;">
+<!-- 分页导航 -->
+<nav aria-label="Page navigation example">
+    <ul class="pagination">
+        <!-- 修改Prev按钮，使其在第一页时变为不可点击 -->
+        <li class="page-item <%= page === 1 ? 'disabled' : '' %>">
+            <a class="page-link" href="<%= page === 1 ? '#' : '/submissions/' + tenantId + '/form/' + formId + '?page=' + (page - 1) %>">< prev</a>
+        </li>
+        <% const maxPagesToShow = 10; %>
+        <% const startPage = Math.max(1, page - Math.floor(maxPagesToShow / 2)); %>
+        <% const endPage = Math.min(totalPages, startPage + maxPagesToShow - 1); %>
+        <% for (let i = startPage; i <= endPage; i++) { %>
+            <li class="page-item <%= i === page ? 'active' : '' %>">
+                <a class="page-link" href="/submissions/<%= tenantId %>/form/<%= formId %>?page=<%= i %>"><%= i %></a>
+            </li>
+        <% } %>
+        <!-- 修改Next按钮，使其在最后一页时变为不可点击 -->
+        <li class="page-item <%= page === totalPages ? 'disabled' : '' %>">
+            <a class="page-link" href="<%= page === totalPages ? '#' : '/submissions/' + tenantId + '/form/' + formId + '?page=' + (page + 1) %>">next ></a>
+        </li>
+    </ul>
+</nav>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<%- include('partials/footer') %>

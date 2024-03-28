@@ -56,4 +56,25 @@ describe("User Service", () => {
       assert(!restoredUser.IsDeleted, "User should be restored");
     });
  });
+
+ describe("getTenantInfoByUserId", () => {
+  it.only("should return the tenant info for a given user ID", async () => {
+    // 设置预期的用户ID
+    const userId = "17"; // 替换为实际的用户ID
+
+    try {
+      // 调用 getTenantInfoByUserId 函数
+      const tenantInfo = await userService.getTenantInfoByUserId(userId);
+
+      // 断言函数的输出是否符合预期
+      assert(tenantInfo, "Tenant info should be returned");
+      assert.equal(tenantInfo.TenantID, "3", "Tenant ID should match");
+      // 添加更多的断言来检查其他属性
+
+    } catch (error) {
+      assert.fail(`Test failed with error: ${error.message}`);
+    }
+  });
+});
+
 });

@@ -122,6 +122,47 @@ const getUserById = async (userId) => {
     throw error;
   }
 };
+// 在 userService.js 文件中
+
+async function getTenantInfoByUserId(userId) {
+  try {
+     logger.info(`[userService.js] getTenantInfoByUserId: Fetching tenant info for userId: ${userId}`);
+ 
+     // 使用 userModel 的 findById 方法获取用户信息
+     const user = await userModel.findById(userId);
+     if (!user) {
+       logger.error(`[userService.js] getTenantInfoByUserId: User not found for userId: ${userId}`);
+       throw new Error("User not found");
+     }
+ 
+     // 假设用户信息中有一个 TenantID 字段，用于关联租户信息
+     const tenantId = user.TenantID;
+     logger.debug(`[userService.js] getTenantInfoByUserId: Found tenant ID: ${tenantId} for userId: ${userId}`);
+ 
+     // 使用 tenantModel 的 findById 方法获取租户信息
+     const tenant = await tenantModel.findById(tenantId);
+     if (!tenant) {
+       logger.error(`[userService.js] getTenantInfoByUserId: Tenant not found for tenantId: ${tenantId}`);
+       throw new Error("Tenant not found");
+     }
+ 
+     logger.info(`[userService.js] getTenantInfoByUserId: Successfully fetched tenant info for userId: ${userId}`);
+ 
+     // 返回租户对象
+     return tenant;
+  } catch (error) {
+     logger.error(`[userService.js] getTenantInfoByUserId: Error fetching tenant info for userId: ${userId}. Error: ${error.message}`);
+     throw error;
+  }
+ }
+ 
+ // 确保将 getTenantInfoByUserId 函数导出，以便在其他文件中使用
+ module.exports = {
+  findUserByEmail,
+  createUserWithTenant,
+  getTenantInfoByUserId, // 添加这行
+  // 其他函数...
+ };
 
 module.exports = {
   getUserByUsername,
@@ -130,4 +171,5 @@ module.exports = {
   softDeleteUser,
   restoreUser,
   getUserById,
+  getTenantInfoByUserId
 };

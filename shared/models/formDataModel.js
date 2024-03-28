@@ -20,10 +20,33 @@ const remove = (id) => {
   return knex('FormData').where('EntryID', id).del();
 };
 
+const getFormDataById = (formId) => {
+  return knex('FormData')
+      .where('FormID', formId)
+      .select('*');
+};
+
+const getFormDataByIdWithPagination = (formId, offset = 0, limit = 10) => {
+  return knex('FormData')
+      .where('FormID', formId)
+      .offset(offset)
+      .limit(limit)
+      .select('*');
+};
+
+const countFormDataByFormId = (formId) => {
+  return knex('FormData')
+      .where('FormID', formId)
+      .count('* as count');
+};
+
 module.exports = {
   create,
   findAll,
   findById,
   update,
-  remove
+  remove,
+  getFormDataById,
+  getFormDataByIdWithPagination,
+  countFormDataByFormId,
 };

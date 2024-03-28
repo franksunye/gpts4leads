@@ -116,3 +116,6 @@ CREATE TABLE Users (
 
 COMMIT TRANSACTION;
 PRAGMA foreign_keys = on;
+
+INSERT INTO FormData (EntryID, FormID, Data, CreatedAt, UpdatedAt, SubmittedBy, IsDeleted) VALUES (1, 1, '{"Customer Name": "John Doe", "Feedback": "Great service!"}', '2024-01-22 08:21:32', '2024-01-22 08:21:32', 'user1', 0);
+INSERT INTO FormData (EntryID, FormID, Data, CreatedAt, UpdatedAt, SubmittedBy, IsDeleted) VALUES (2, 2, '{"Employee ID": 12345, "Satisfaction Level": 4}', '2024-01-22 08:21:32', '2024-01-22 08:21:32', 'user3', 0);

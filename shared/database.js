@@ -27,7 +27,7 @@ const knex = require("knex")({
           filename: process.env.DB_FILENAME || "./gpts4leads-saas-app.db",
         },
   useNullAsDefault: true,
-  debug: true, // 开启调试模式
+  debug: false, // 开启调试模式
 });
 
 module.exports = knex;

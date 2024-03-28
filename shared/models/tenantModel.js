@@ -24,6 +24,7 @@ const findAll = () => {
 const findById = (id) => {
   return knex('Tenants').select('*').where('TenantID', id).first();
 };
+
 // const findById = async (id) => {
 //   return await knex('"Tenants"').where('"TenantID"', id).first();
 //  };
