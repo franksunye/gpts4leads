@@ -5,7 +5,6 @@ async function setStripeCustomerIdForTenant(tenantId, stripeCustomerId) {
  try {
     logger.info(`[tenantService.js] setStripeCustomerIdForTenant: Setting Stripe customer ID for tenantId: ${tenantId}`);
 
-    // 使用tenantModel的update方法更新租户信息
     const result = await tenantModel.update(tenantId, {
       StripeCustomerId: stripeCustomerId,
     });
@@ -24,7 +23,6 @@ async function setStripeCustomerIdForTenant(tenantId, stripeCustomerId) {
 
 async function findTenantByUserId(userId) {
     try {
-        // 假设tenantModel有一个方法可以通过用户ID找到租户
         const tenant = await tenantModel.findByUserId(userId);
         if (!tenant) {
             throw new Error("Tenant not found");
@@ -36,7 +34,13 @@ async function findTenantByUserId(userId) {
     }
 }
 
+async function findTenantUuidByTenantId(tenantId) {
+  const tenant = await tenantModel.findById(tenantId);
+  return tenant ? tenant.UUID : null;
+ }
+
 module.exports = {
  setStripeCustomerIdForTenant,
- findTenantByUserId
+ findTenantByUserId,
+ findTenantUuidByTenantId,
 };

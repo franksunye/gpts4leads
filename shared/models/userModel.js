@@ -1,12 +1,18 @@
 const knex = require('../database');
+const { generateSixDigitNumericUUID } = require('../utils/uuid'); 
 
 // const create = (userData) => {
 //   return knex('Users').insert(userData);
 // };
 
 const create = async (userData) => {
-  let result = await knex('Users').insert(userData);
- 
+  // let result = await knex('Users').insert(userData);
+
+  const uuid = generateSixDigitNumericUUID();
+  const userDataWithUUID = { ...userData, UUID: uuid };
+
+  let result = await knex('Users').insert(userDataWithUUID);
+
   // 在 SQLite 中，将结果转换为对象
   if (process.env.DB_CLIENT === 'sqlite3') {
      result = { UserID: result[0] };

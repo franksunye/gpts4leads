@@ -1,7 +1,11 @@
 const knex = require('../database');
+const { generateTenDigitNumericUUID } = require('../utils/uuid');
 
 const create = (formData) => {
-  return knex('Forms').insert(formData);
+  const uuid = generateTenDigitNumericUUID();
+  const formDataWithUUID = { ...formData, UUID: uuid };
+  
+  return knex('Forms').insert(formDataWithUUID);
 };
 
 const findAll = () => {
@@ -38,6 +42,18 @@ const countFormsByTenantId = (tenantId) => {
      .count('* as count');
 };
 
+const findByUuid = async (formUuid) => {
+  try {
+     const result = await knex('Forms') 
+       .where('uuid', formUuid)
+       .first();
+     return result ? result.FormID : null;
+  } catch (error) {
+     console.error(`[formModel.js] findByUuid: Error fetching formId for formUuid: ${formUuid}. Error: ${error.message}`);
+     throw error;
+  }
+ };
+
 module.exports = {
   create,
   findAll,
@@ -47,4 +63,5 @@ module.exports = {
   findByTenantId,
   findByTenantIdWithPagination,
   countFormsByTenantId,
+  findByUuid,
 };

@@ -43,3 +43,19 @@ exports.getFormsByTenantIdWithPagination = async (tenantId, offset, limit = 10) 
      throw error;
   }
  };
+
+ exports.getFormIdByUuid = async (formUuid) => {
+   try {
+      logger.info(`[formService.js] getFormIdByUuid: Fetching formId for formUuid: ${formUuid}`);
+      const formId = await FormModel.findByUuid(formUuid);
+      if (!formId) {
+        logger.error(`[formService.js] getFormIdByUuid: Form not found for formUuid: ${formUuid}`);
+        return null; // 或者抛出一个错误
+      }
+      logger.info(`[formService.js] getFormIdByUuid: Successfully fetched formId: ${formId} for formUuid: ${formUuid}`);
+      return formId;
+   } catch (error) {
+      logger.error(`[formService.js] getFormIdByUuid: Error fetching formId for formUuid: ${formUuid}. Error: ${error.message}`);
+      throw error;
+   }
+  };

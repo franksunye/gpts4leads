@@ -1,7 +1,11 @@
 const knex = require('../database');
+const { generateTwelveDigitUUID } = require('../utils/uuid'); 
 
 const create = (fieldData) => {
-  return knex('Fields').insert(fieldData);
+  const uuid = generateTwelveDigitUUID();
+  const fieldDataWithUUID = { ...fieldData, UUID: uuid };
+
+  return knex('Fields').insert(fieldDataWithUUID);
 };
 
 const findAll = () => {
@@ -20,10 +24,15 @@ const remove = (id) => {
   return knex('Fields').where('FieldID', id).del();
 };
 
+const findByFormId = (formId) => {
+  return knex('Fields').select('*').where('FormID', formId);
+ };
+
 module.exports = {
   create,
   findAll,
   findById,
   update,
-  remove
+  remove,
+  findByFormId
 };

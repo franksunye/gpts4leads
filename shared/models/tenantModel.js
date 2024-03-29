@@ -1,11 +1,14 @@
 const knex = require('../database');
-
+const { generateSixDigitNumericUUID } = require('../utils/uuid');
 // const create = (tenantData) => {
 //   return knex('Tenants').insert(tenantData);
 // };
 const create = async (tenantData) => {
-  let result = await knex('Tenants').insert(tenantData);
- 
+  // let result = await knex('Tenants').insert(tenantData);
+  const uuid = generateSixDigitNumericUUID();
+  const tenantDataWithUUID = { ...tenantData, UUID: uuid };
+  let result = await knex('Tenants').insert(tenantDataWithUUID);
+
   if (process.env.DB_CLIENT === 'sqlite3') {
      result = { TenantID: result[0] };
   }

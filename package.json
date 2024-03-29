@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "bcrypt": "^5.1.1",
+    "chai": "^5.1.0",
     "dotenv": "^16.4.5",
     "ejs": "^3.1.9",
     "jsonwebtoken": "^9.0.2",
@@ -16,6 +17,7 @@
     "nodemon": "^3.1.0",
     "openid-client": "^5.6.4",
     "pg": "^8.11.3",
+    "short-uuid": "^4.2.2",
     "sqlite3": "^5.1.7",
     "stripe": "^14.18.0",
     "winston": "^3.12.0",

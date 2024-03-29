@@ -58,7 +58,7 @@ describe("User Service", () => {
  });
 
  describe("getTenantInfoByUserId", () => {
-  it.only("should return the tenant info for a given user ID", async () => {
+  it("should return the tenant info for a given user ID", async () => {
     // 设置预期的用户ID
     const userId = "17"; // 替换为实际的用户ID
 

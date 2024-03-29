@@ -1,4 +1,4 @@
-// formDataService.js
+// shared/services/formDataService.js
 const FormDataModel = require('../models/formDataModel');
 const logger = require('../utils/logger');
 
@@ -29,6 +29,21 @@ exports.getFormDataByIdWithPagination = async (formId, offset, limit = 10) => {
     }
 };
 
+exports.getFormDataByUuidWithPagination = async (uuid, offset, limit = 10) => {
+    try {
+       logger.info(`[formDataService.js] getFormDataByUuidWithPagination: Fetching form data for UUID: ${uuid}`);
+       let formData = await FormDataModel.getFormDataByUuidWithPagination(uuid, offset, limit);
+       // 转换数据结构
+       formData = exports.transformFormData(formData);
+       logger.debug(`[formDataService.js] getFormDataByUuidWithPagination: Form data for UUID: ${uuid} - ${JSON.stringify(formData, null, 2)}`);
+       logger.info(`[formDataService.js] getFormDataByUuidWithPagination: Successfully fetched form data for UUID: ${uuid}`);
+       return formData;
+    } catch (error) {
+       logger.error(`[formDataService.js] getFormDataByUuidWithPagination: Error fetching form data for UUID: ${uuid}. Error: ${error.message}`);
+       throw error;
+    }
+   };
+   
 exports.countFormDataByFormId = async (formId) => {
     try {
         logger.info(`[formDataService.js] countFormDataByFormId: Counting form data for formId: ${formId}`);
