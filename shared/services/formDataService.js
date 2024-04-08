@@ -70,3 +70,52 @@ exports.transformFormData = (formDataArray) => {
         };
     });
 };
+
+exports.countFormDataByTenantId = async (tenantId) => {
+    try {
+        logger.info(`[formDataService.js] countFormDataByTenantId: Counting form data for tenantId: ${tenantId}`);
+        const count = await FormDataModel.countFormDataByTenantId(tenantId);
+        logger.info(`[formDataService.js] countFormDataByTenantId: Count for tenantId ${tenantId}: ${count}`);
+
+        logger.info(`[formDataService.js] countFormDataByTenantId: Successfully counted form data for tenantId: ${tenantId}`);
+        return count;
+    } catch (error) {
+        logger.error(`[formDataService.js] countFormDataByTenantId: Error counting form data for tenantId: ${tenantId}. Error: ${error.message}`);
+        throw error;
+    }
+};
+
+exports.countUniqueFieldByTenantId = async (tenantId, fieldName) => {
+    try {
+        logger.info(`[formDataService.js] countUniqueFieldByTenantId: Counting unique ${fieldName} for tenantId: ${tenantId}`);
+        const count = await FormDataModel.countUniqueFieldByTenantId(tenantId, fieldName);
+        logger.info(`[formDataService.js] countUniqueFieldByTenantId: Count of unique ${fieldName} for tenantId ${tenantId}: ${count}`);
+        logger.info(`[formDataService.js] countUniqueFieldByTenantId: Successfully counted unique ${fieldName} for tenantId: ${tenantId}`);
+        return count;
+    } catch (error) {
+        logger.error(`[formDataService.js] countUniqueFieldByTenantId: Error counting unique ${fieldName} for tenantId: ${tenantId}. Error: ${error.message}`);
+        throw error;
+    }
+};
+
+exports.getFormDataCountByDateRange = async (tenantId, startDate, endDate) => {
+    try {
+        const result = await FormDataModel.getFormDataCountByDateRange(tenantId, startDate, endDate);
+        // logger.info(`[formDataService.js] getFormDataCountByDateRange: Count by date range from ${startDate} to ${endDate} for tenantId ${tenantId}: ${JSON.stringify(result, null, 2)}`);
+        return result;
+    } catch (error) {
+        logger.error(`[formDataService.js] getFormDataCountByDateRange: Error getting form data count by date range for tenantId ${tenantId}. Error: ${error.message}`);
+        throw error;
+    }
+};
+
+exports.getFormDataCountByDateRangeAndUniqueField = async (tenantId, uniqueField, startDate, endDate) => {
+    try {
+        const result = await FormDataModel.getFormDataCountByDateRangeAndUniqueField(tenantId, uniqueField, startDate, endDate);
+        // logger.info(`[formDataService.js] getFormDataCountByDateRangeAndUniqueField: Count by date range from ${startDate} to ${endDate} for tenantId ${tenantId} and unique field ${uniqueField}: ${JSON.stringify(result, null, 2)}`);
+        return result;
+    } catch (error) {
+        logger.error(`[formDataService.js] getFormDataCountByDateRangeAndUniqueField: Error getting form data count by date range for tenantId ${tenantId} and unique field ${uniqueField}. Error: ${error.message}`);
+        throw error;
+    }
+};

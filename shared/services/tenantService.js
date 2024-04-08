@@ -39,8 +39,23 @@ async function findTenantUuidByTenantId(tenantId) {
   return tenant ? tenant.UUID : null;
  }
 
+async function findTenantIdByUuid(tenantUuid) {
+  try {
+     const tenant = await tenantModel.findByUuid(tenantUuid);
+     if (!tenant) {
+       logger.error(`[tenantService.js] findTenantIdByUuid: Tenant not found for tenantUuid: ${tenantUuid}`);
+       throw new Error('Tenant not found');
+     }
+     return tenant.TenantID;
+  } catch (error) {
+     logger.error(`[tenantService.js] findTenantIdByUuid: Error finding tenant ID for tenantUuid: ${tenantUuid}. Error: ${error.message}`);
+     throw error;
+  }
+}
+
 module.exports = {
  setStripeCustomerIdForTenant,
  findTenantByUserId,
  findTenantUuidByTenantId,
+ findTenantIdByUuid,
 };

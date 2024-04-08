@@ -42,10 +42,15 @@ const remove = (id) => {
   return knex('Tenants').where('TenantID', id).del();
 };
 
+const findByUuid = async (tenantUuid) => {
+  return knex('Tenants').select('*').where('UUID', tenantUuid).first();
+ };
+
 module.exports = {
   create,
   findAll,
   findById,
   update,
-  remove
+  remove,
+  findByUuid
 };

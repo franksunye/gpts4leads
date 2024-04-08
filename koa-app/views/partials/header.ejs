@@ -5,5 +5,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><%= title %></title>
     <link href="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta17/dist/css/tabler.min.css" rel="stylesheet">
+    <style>
+        #alertMessage {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 9999; /* 确保消息显示在其他内容之上 */
+            margin: 0 auto; /* 水平居中 */
+            width: 80%; /* 设置宽度，可以根据需要调整 */
+            padding: 10px; /* 添加一些内边距 */
+        }
+        .modal {
+            transition: opacity 0.3s ease-out;
+        }
+
+        .modal.fade .modal-dialog {
+            transition: transform 0.3s ease-out;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta17/dist/js/tabler.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.6/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 </head>
 <body class="layout-condensed">

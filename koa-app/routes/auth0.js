@@ -5,6 +5,7 @@ const jwt = require("jsonwebtoken");
 
 const auth0Settings = require("../../shared/config/auth0-configuration");
 const userService = require("../../shared/services/userService");
+const tenantService = require("../../shared/services/tenantService");
 const logger = require('../../shared/utils/logger'); 
 const stripe = require('../../shared/utils/stripe');
 
@@ -44,7 +45,7 @@ router.get("/callback", async (ctx, next) => {
   try {
     logger.info(`[auth0.js] /callback: Auth0 callback received`);
 
-    const state = ctx.request.query.state;
+    // const state = ctx.request.query.state;
     const params = client.callbackParams(ctx.req);
     const tokenSet = await client.callback(auth0Settings.callbackUrl, params, { state: params.state });
     const action = ctx.query.state.split("=")[1];
@@ -64,6 +65,7 @@ router.get("/callback", async (ctx, next) => {
         user = newUser;
       }
      const tenantId = user.TenantID;
+     const tenantUuid = await tenantService.findTenantUuidByTenantId(user.TenantID);
 
      await getSubscriptionInfoAndSaveToSession(ctx, user.UserID);
 
@@ -72,14 +74,16 @@ router.get("/callback", async (ctx, next) => {
         email: user.Email,
         nickname: user.Username,
         tenantId: user.TenantID,
+        tenantUuid: tenantUuid,
         idToken: tokenSet.id_token,
         accessToken: tokenSet.access_token,
       };
       
       logger.debug(`[auth0.js] /callback: Current session info: ${JSON.stringify(ctx.session)}`);
-
       logger.info(`[auth0.js] /callback: Redirecting to home page for tenantId: ${tenantId}`);
-      ctx.redirect(`/home/${tenantId}`);
+      logger.info(`[auth0.js] /callback: Redirecting to home page for tenantUuid: ${tenantUuid}`);
+
+      ctx.redirect(`/home/${tenantUuid}`);
     }
   } catch (error) {
     logger.error(`[auth0.js] /callback: Error during Auth0 callback processing: ${error.message}`);

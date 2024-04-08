@@ -57,7 +57,7 @@ exports.updateFormData = async (ctx) => {
 exports.deleteFormData = async (ctx) => {
   try {
     const { id } = ctx.params;
-    const deleted = await FormDataModel.remove(id);
+    const deleted = await FormDataModel.softDelete(id);
     if (deleted) {
       ctx.status = 200;
       ctx.body = { message: 'Entry deleted' };

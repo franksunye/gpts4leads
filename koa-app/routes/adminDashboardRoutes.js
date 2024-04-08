@@ -1,8 +1,9 @@
 // adminDashboardRoutes.js
 const Router = require('koa-router');
 const logger = require('../../shared/utils/logger');
-const formsService = require('../../shared/services/formService');
+const formService = require('../../shared/services/formService');
 const formDataService = require('../../shared/services/formDataService');
+const fieldService = require('../../shared/services/fieldService');
 
 const router = new Router();
 
@@ -20,7 +21,7 @@ async function checkAuth(ctx, next) {
 router.get('/', async (ctx) => {
   if (ctx.session.user) {
     logger.info(`[adminDashboardRoutes.js] Root route: User is authenticated, redirecting to home`);
-    ctx.redirect(`/home/${ctx.session.user.tenantId}`);
+    ctx.redirect(`/home/${ctx.session.user.tenantUuid}`);
   } else {
     logger.info('[adminDashboardRoutes.js] Root route: User not authenticated, redirecting to login');
     ctx.redirect('/login');
@@ -28,14 +29,26 @@ router.get('/', async (ctx) => {
 });
 
 //   定义路由来渲染首页
-router.get('/home/:tenantId', checkAuth, async (ctx) => {
-  const tenantId = ctx.params.tenantId;
+router.get('/home/:tenantUuid', checkAuth, async (ctx) => {
+  const tenantUuid = ctx.params.tenantUuid;
+  const tenantId = ctx.session.user.tenantId;
+
   try {
-     logger.info(`[adminDashboardRoutes.js] Home route: Rendering home page for tenantId: ${tenantId}`);
+     const totalSubmissionCount = await formDataService.countFormDataByTenantId(tenantId);
+     const uniqueSubmissionCount = await formDataService.countUniqueFieldByTenantId(tenantId, "Email");
+     const formDataCountByDateRange = await formDataService.getFormDataCountByDateRange(tenantId, "2024-01-01", "2024-12-31");
+     const formDataCountByDateRangeAndUniqueField = await formDataService.getFormDataCountByDateRangeAndUniqueField(tenantId, "Email", "2024-01-01", "2024-12-31");
+
+     logger.info(`[adminDashboardRoutes.js] Home route: Rendering home page for tenantUuid: ${tenantUuid}`);
      await ctx.render('index', {
        title: 'Admin Dashboard',
        user: ctx.session.user || null,
-       tenantId: tenantId
+       tenantId: tenantId,
+       tenantUuid: tenantUuid,
+       totalFormDataCount: totalSubmissionCount,
+       uniqueEmailCount: uniqueSubmissionCount,
+       formDataCountByDateRange,
+       formDataCountByDateRangeAndUniqueField
      });
   } catch (error) {
      logger.error(`[adminDashboardRoutes.js] Home route: Error rendering home page for tenantId: ${tenantId}. Error: ${error.message}`);
@@ -62,35 +75,23 @@ router.get('/home/:tenantId', checkAuth, async (ctx) => {
 //   }
 // });
 
-
-// 添加Forms页面的路由
-router.get('/forms/:tenantId', checkAuth, async (ctx) => {
-  const tenantId = ctx.params.tenantId;
+router.get('/forms/:tenantUuid', checkAuth, async (ctx) => {
+  const tenantId = ctx.session.user.tenantId;
   const page = parseInt(ctx.query.page) || 1; // 获取页码，默认为1
   const limit = parseInt(ctx.query.limit) || 5; // 每页记录数，默认为10
   const offset = (page - 1) * limit; // 计算偏移量
-
-  logger.debug(`[adminDashboardRoutes.js] Forms route: Debugging info for tenantId: ${tenantId}`);
-  logger.debug(`[adminDashboardRoutes.js] Forms route: Page: ${page}, Type: ${typeof page}`);
-  logger.debug(`[adminDashboardRoutes.js] Forms route: Limit: ${limit}, Type: ${typeof limit}`);
-  logger.debug(`[adminDashboardRoutes.js] Forms route: Offset: ${offset}, Type: ${typeof offset}`);
-    
+ 
   try {
-     logger.info(`[adminDashboardRoutes.js] Forms route: Fetching forms for tenantId: ${tenantId}`);
-     const forms = await formsService.getFormsByTenantIdWithPagination(tenantId, offset, limit);
-     logger.info(`[adminDashboardRoutes.js] Forms route: Successfully fetched forms for tenantId: ${tenantId}`);
-
-     const total = await formsService.countFormsByTenantId(tenantId);
-     logger.debug(`[adminDashboardRoutes.js] Forms route: Total forms: ${total}`);
-
+     const forms = await formService.getFormsByTenantIdWithPaginationAndCount(tenantId, offset, limit);
+     const total = await formService.countFormsByTenantId(tenantId);
      const totalPages = Math.ceil(total / limit);
-     logger.debug(`[adminDashboardRoutes.js] Forms route: Total pages: ${totalPages}`);
  
      await ctx.render('forms', {
          title: 'Forms Dashboard',
          user: ctx.session.user || null,
          forms: forms,
          tenantId: tenantId,
+         tenantUuid: ctx.session.user.tenantUuid,
          page: page,
          totalPages: totalPages,
          limit, limit,
@@ -102,29 +103,35 @@ router.get('/forms/:tenantId', checkAuth, async (ctx) => {
   }
  });
 
- router.get('/submissions/:tenantId/form/:formId', checkAuth, async (ctx) => {
-  const tenantId = ctx.params.tenantId;
-  const formId = ctx.params.formId;
+ router.get('/submissions/:tenantUuid/form/:formUuid', checkAuth, async (ctx) => {
+  const tenantId = ctx.session.user.tenantId;
+  const formUuid = ctx.params.formUuid;
   const page = parseInt(ctx.query.page) || 1; // 获取页码，默认为1
   const limit = parseInt(ctx.query.limit) || 5; // 每页记录数，默认为10
   const offset = (page - 1) * limit; // 计算偏移量
 
   try {
+      const formId = await formService.getFormIdByUuid(formUuid);
       const formData = await formDataService.getFormDataByIdWithPagination(formId, offset, limit);
       // logger.debug(`[adminDashboardRoutes.js] Form data for formId: ${formId} - ${JSON.stringify(formData, null, 2)}`);
       const total = await formDataService.countFormDataByFormId(formId);
       const totalPages = Math.ceil(total / limit);
 
+      const fields = await fieldService.getFieldsByFormId(formId);
+
       await ctx.render('form', {
           title: 'Form Submission',
           user: ctx.session.user || null,
           tenantId: tenantId,
+          tenantUuid: ctx.session.user.tenantUuid,
           formId: formId,
+          formUuid: formUuid,
           formData: formData,
           page: page,
           totalPages: totalPages,
           limit: limit,
-          total: total
+          total: total,
+          fields: fields
       });
   } catch (error) {
       logger.error(`[adminDashboardRoutes.js] Form submission route: Error rendering form submission page for tenantId: ${tenantId} and formId: ${formId}. Error: ${error.message}`);
@@ -132,9 +139,8 @@ router.get('/forms/:tenantId', checkAuth, async (ctx) => {
   }
 });
 
-// 添加Account & Billing页面的路由
-router.get('/account/:tenantId', checkAuth, async (ctx) => {
-  const tenantId = ctx.params.tenantId;
+router.get('/account/:tenantUuid', checkAuth, async (ctx) => {
+  const tenantId = ctx.session.user.tenantId;
   try {
      logger.info(`[adminDashboardRoutes.js] Account route: Rendering account page for tenantId: ${tenantId}`);
      const userEmail = ctx.session.user.email;
@@ -145,6 +151,7 @@ router.get('/account/:tenantId', checkAuth, async (ctx) => {
        user: ctx.session.user || null,
        subscription: ctx.session.subscription || null,
        tenantId: tenantId,
+       tenantUuid: ctx.session.user.tenantUuid,
        userEmail: userEmail
      });
   } catch (error) {
@@ -153,8 +160,7 @@ router.get('/account/:tenantId', checkAuth, async (ctx) => {
   }
  });
 
-//   添加登出路由
-router.get('/logout/:tenantId', async (ctx) => {
+router.get('/logout/:tenantUuid', async (ctx) => {
   try {
      logger.info(`[adminDashboardRoutes.js] Logout route: Clearing user session for tenantId: ${ctx.params.tenantId}`);
      ctx.session = null;

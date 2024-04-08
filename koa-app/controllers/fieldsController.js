@@ -70,3 +70,14 @@ exports.deleteField = async (ctx) => {
     ctx.body = { message: error.message };
   }
 };
+
+exports.getFieldsByFormId = async (ctx) => {
+  try {
+     const { formId } = ctx.params;
+     const fields = await FieldModel.findByFormId(formId);
+     ctx.body = fields;
+  } catch (error) {
+     ctx.status = 500;
+     ctx.body = { message: error.message };
+  }
+ };

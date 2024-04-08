@@ -16,6 +16,7 @@
                     <thead>
                         <tr>
                             <th>Form Name</th>
+                            <th>formDataCount</th>
                             <th>Description</th>
                             <th>Actions</th>
                         </tr>
@@ -24,12 +25,14 @@
                         <% forms.forEach(function(form) { %>
                             <tr>
                                 <td>
-                                    <a href="/submissions/<%= tenantId %>/form/<%= form.FormID %>" target="_blank"><%= form.Name %></a>
+                                    <a href="/submissions/<%= tenantUuid %>/form/<%= form.UUID %>" target="_blank"><%= form.Name %></a>
                                 </td>
+                                <td><%= form.formDataCount %></td>
                                 <td><%= form.Description %></td>
                                 <td>
-                                    <a href="/forms/<%= form.FormID %>/edit" class="btn btn-primary btn-sm">Edit</a>
-                                    <a href="/forms/<%= form.FormID %>/delete" class="btn btn-danger btn-sm">Delete</a>
+                                    <!-- <a href="/forms/<%= form.UUID %>/edit" class="btn btn-primary btn-sm">Edit</a> -->
+                                    <!-- <a href="/forms/<%= form.UUID %>/delete" class="btn btn-danger btn-sm">Delete</a> -->
+                                    <button class="btn btn-danger btn-sm delete-form" data-uuid="<%= form.UUID %>">Delete</button>
                                 </td>
                             </tr>
                         <% }); %>
@@ -52,16 +55,16 @@
                             <ul class="pagination">
                                 <!-- 修改Prev按钮，使其在第一页时变为不可点击 -->
                                 <li class="page-item <%= page === 1 ? 'disabled' : '' %>">
-                                    <a class="page-link" href="<%= page === 1 ? '#' : '/forms/' + tenantId + '?page=' + (page - 1) %>">< prev</a>
+                                    <a class="page-link" href="<%= page === 1 ? '#' : '/forms/' + tenantUuid + '?page=' + (page - 1) %>">< prev</a>
                                 </li>
                                 <% for (let i = 1; i <= totalPages; i++) { %>
                                     <li class="page-item <%= i === page ? 'active' : '' %>">
-                                        <a class="page-link" href="/forms/<%= tenantId %>?page=<%= i %>"><%= i %></a>
+                                        <a class="page-link" href="/forms/<%= tenantUuid %>?page=<%= i %>"><%= i %></a>
                                     </li>
                                 <% } %>
                                 <!-- 修改Next按钮，使其在最后一页时变为不可点击 -->
                                 <li class="page-item <%= page === totalPages ? 'disabled' : '' %>">
-                                    <a class="page-link" href="<%= page === totalPages ? '#' : '/forms/' + tenantId + '?page=' + (page + 1) %>">next ></a>
+                                    <a class="page-link" href="<%= page === totalPages ? '#' : '/forms/' + tenantUuid + '?page=' + (page + 1) %>">next ></a>
                                 </li>
                             </ul>
                         </nav>
@@ -72,5 +75,37 @@
         </div>
     </div>
 </div>
+<script>
+$(document).ready(function() {
+    // 绑定点击事件到删除按钮
+    $('.delete-form').on('click', function(e) {
+        e.preventDefault(); // 阻止默认的链接行为
+        var formUuid = $(this).data('uuid'); // 获取按钮的data-uuid属性
+        var deleteUrl = '/api/forms/' + formUuid; // 构造删除URL
 
+        // 使用Fetch API发送一个DELETE请求到服务器
+        fetch(deleteUrl, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            // 成功删除后，可以重新加载表单列表或显示一个成功消息
+            alert('Form deleted successfully');
+            location.reload(); // 重新加载页面以更新表单列表
+        })
+        .catch(error => {
+            // 如果删除失败，显示一个错误消息
+            alert('Error deleting form: ' + error.message);
+        });
+    });
+});
+    </script>
 <%- include('partials/footer') %>

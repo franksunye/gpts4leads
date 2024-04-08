@@ -1,11 +1,114 @@
-
 <%- include('partials/header', { title: 'Admin Dashboard' }) %>
 <%- include('partials/navbar') %>
 
 <div class="container">
-    <!-- 页面特定内容 -->
     <h1>Welcome to the Admin Dashboard</h1>
     <p>This is a simple example page.</p>
-</div>
 
+    <!-- 第一行：Total Form Data Count 和 Unique Email Count -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="subheader">Total Submission Count</div>
+                    </div>
+                    <div class="h1 mb-3"><%= totalFormDataCount %></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="subheader">Unique Lead Count (by Email)</div>
+                    </div>                    
+                    <div class="h1 mb-3"><%= uniqueEmailCount %></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mb-3"></div>
+
+    <!-- 第二行：Form Data Count by Date Range 和 Form Data Count by Date Range and Unique Field -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Submission Count by Date Range</h5>
+                    <!-- Store the data in a data attribute of the canvas element -->
+                    <canvas id="trendChart" data-chart-data='<%= JSON.stringify(formDataCountByDateRange) %>'></canvas>                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Submission Count by Date Range and Unique Field</h5>
+                    <canvas id="uniqueFieldTrendChart" data-chart-data='<%= JSON.stringify(formDataCountByDateRangeAndUniqueField) %>'></canvas>
+                </div>
+            </div>
+        </div>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            const ctx = document.getElementById('trendChart').getContext('2d');
+            // Retrieve the data from the data attribute and parse it as JSON
+            const data = JSON.parse(document.getElementById('trendChart').dataset.chartData);
+            const labels = data.map(item => item.date);
+            const counts = data.map(item => item.count);
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Submission',
+                        data: counts,
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        });
+    </script>  
+
+    <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            const ctx = document.getElementById('uniqueFieldTrendChart').getContext('2d');
+            // Retrieve the data from the data attribute and parse it as JSON
+            const data = JSON.parse(document.getElementById('uniqueFieldTrendChart').dataset.chartData);
+            const labels = data.map(item => item.date);
+            const counts = data.map(item => item.count);
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Submission by Unique Field',
+                        data: counts,
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+    
 <%- include('partials/footer') %>
