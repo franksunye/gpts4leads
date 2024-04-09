@@ -4,13 +4,36 @@
 <%- include('partials/navbar') %>
 
 <div class="container">
-    <h1>Form Submission</h1>
-    <p>This is the form data list for the current form.</p>
+    <div class="mb-3"></div>
 
+    <h1>Form Submission</h1>
+    <p>This page displays the submission data for the current form, with a total of <%= total %> submissions recorded.</p>    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Form Fields</h3>
+        </div>
+        <div class="card-body">
+            <div class="d-flex flex-wrap">
+                <% fields.forEach(function(field) { %>
+                    <span class="badge badge-primary m-1"><%= field.Name %></span>
+                <% }); %>
+            </div>
+        </div>
+    </div>
+    <div class="mb-3"></div>
     <!-- 表格开始 -->
     <div class="card">
         <div class="card-header">
             <h3 class="card-title">Form Data</h3>
+            <div class="card-actions">
+                <button onclick="downloadData('<%= formUuid %>', '<%= tenantUuid %>')" class="btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                        <path d="M12 10v6m0 0v6m0-16v6"></path>
+                        <path d="M9 18h6"></path>
+                    </svg>
+                    Download
+                </button>
+            </div>
         </div>
         <div class="card-body">
             <div class="table-responsive">
@@ -155,4 +178,33 @@
     }
 };
 </script>
+<script>
+function downloadData(formUuid, tenantUuid) {
+    // 获取当前时间戳的最后四位
+    const timestamp = new Date().getTime().toString().slice(-4);
+
+    // 构建文件名
+    const fileName = `form-data-${tenantUuid}-${formUuid}-${timestamp}.csv`;
+
+    // 使用 fetch API 发送请求到后端
+    fetch(`/api/download/${formUuid}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => response.blob()) // 将响应转换为 Blob
+    .then(blob => {
+        // 创建一个临时的下载链接
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName; // 使用构建的文件名
+        document.body.appendChild(a); // 必须将 <a> 元素添加到 DOM 中才能触发点击事件
+        a.click(); // 触发点击事件来开始下载
+        a.remove(); // 下载完成后移除 <a> 元素
+    })
+    .catch(error => console.error('Error:', error));
+}
+    </script>
 <%- include('partials/footer') %>

@@ -38,6 +38,7 @@ router.get('/home/:tenantUuid', checkAuth, async (ctx) => {
      const uniqueSubmissionCount = await formDataService.countUniqueFieldByTenantId(tenantId, "Email");
      const formDataCountByDateRange = await formDataService.getFormDataCountByDateRange(tenantId, "2024-01-01", "2024-12-31");
      const formDataCountByDateRangeAndUniqueField = await formDataService.getFormDataCountByDateRangeAndUniqueField(tenantId, "Email", "2024-01-01", "2024-12-31");
+     const formCount = await formService.countFormsByTenantId(tenantId);
 
      logger.info(`[adminDashboardRoutes.js] Home route: Rendering home page for tenantUuid: ${tenantUuid}`);
      await ctx.render('index', {
@@ -48,7 +49,8 @@ router.get('/home/:tenantUuid', checkAuth, async (ctx) => {
        totalFormDataCount: totalSubmissionCount,
        uniqueEmailCount: uniqueSubmissionCount,
        formDataCountByDateRange,
-       formDataCountByDateRangeAndUniqueField
+       formDataCountByDateRangeAndUniqueField,
+       formCount
      });
   } catch (error) {
      logger.error(`[adminDashboardRoutes.js] Home route: Error rendering home page for tenantId: ${tenantId}. Error: ${error.message}`);
@@ -111,6 +113,8 @@ router.get('/forms/:tenantUuid', checkAuth, async (ctx) => {
   const offset = (page - 1) * limit; // 计算偏移量
 
   try {
+      logger.info(`[adminDashboardRoutes.js] Submission route: Rendering submission page for tenantId: ${tenantId}`);
+
       const formId = await formService.getFormIdByUuid(formUuid);
       const formData = await formDataService.getFormDataByIdWithPagination(formId, offset, limit);
       // logger.debug(`[adminDashboardRoutes.js] Form data for formId: ${formId} - ${JSON.stringify(formData, null, 2)}`);

@@ -1,4 +1,9 @@
 const FormDataModel = require('../../shared/models/formDataModel');
+const formDataService = require('../../shared/services/formDataService');
+const formService = require('../../shared/services/formService');
+
+const csvWriter = require('csv-writer').createObjectCsvWriter;
+const fs = require('fs');
 
 exports.createFormData = async (ctx) => {
   try {
@@ -69,4 +74,28 @@ exports.deleteFormData = async (ctx) => {
     ctx.status = 500;
     ctx.body = { message: error.message };
   }
+};
+
+exports.downloadFormData = async (ctx) => {
+  const formUuid = ctx.params.uuid;
+  const formId = await formService.getFormIdByUuid(formUuid);
+  const formData = await formDataService.getFormDataById(formId)
+
+  const csvPath = `./downloads/form-${formUuid}.csv`;
+
+  const writer = csvWriter({
+      path: csvPath,
+      header: [
+          {id: 'UUID', title: 'UUID'},
+          {id: 'CreatedAt', title: 'Created At'},
+          {id: 'Customer Name', title: 'Customer Name'},
+      ]
+  });
+
+  await writer.writeRecords(formData);
+
+  ctx.set('Content-disposition', `attachment; filename=form-${formUuid}.csv`);
+  ctx.set('Content-type', 'text/csv');
+
+  ctx.body = fs.createReadStream(csvPath);
 };

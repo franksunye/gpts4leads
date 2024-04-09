@@ -5,7 +5,10 @@ const logger = require('../utils/logger');
 exports.getFormDataById = async (formId) => {
     try {
         logger.info(`[formDataService.js] getFormDataById: Fetching form data for formId: ${formId}`);
-        const formData = await FormDataModel.getFormDataById(formId);
+        let formData = await FormDataModel.getFormDataById(formId);
+        // 转换数据结构
+        formData = exports.transformFormData(formData);
+        logger.debug(`[formDataService.js] getFormDataById: Form data for formId: ${formId} - ${JSON.stringify(formData, null, 2)}`);
         logger.info(`[formDataService.js] getFormDataById: Successfully fetched form data for formId: ${formId}`);
         return formData;
     } catch (error) {
