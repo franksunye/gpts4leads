@@ -10,6 +10,10 @@
     <p>This page displays the submission data for the current form, with a total of <%= total %> submissions recorded.</p>    <div class="card">
         <div class="card-header">
             <h3 class="card-title">Form Fields</h3>
+            <div class="card-actions">
+                <button class="btn btn-secondary m-1 copy-btn">Copy OpenAPI</button>
+                <button class="btn btn-info m-1 view-btn">View Schema</button>
+            </div>
         </div>
         <div class="card-body">
             <div class="d-flex flex-wrap">
@@ -180,13 +184,10 @@
 </script>
 <script>
 function downloadData(formUuid, tenantUuid) {
-    // 获取当前时间戳的最后四位
     const timestamp = new Date().getTime().toString().slice(-4);
 
-    // 构建文件名
     const fileName = `form-data-${tenantUuid}-${formUuid}-${timestamp}.csv`;
 
-    // 使用 fetch API 发送请求到后端
     fetch(`/api/download/${formUuid}`, {
         method: 'GET',
         headers: {
@@ -195,7 +196,6 @@ function downloadData(formUuid, tenantUuid) {
     })
     .then(response => response.blob()) // 将响应转换为 Blob
     .then(blob => {
-        // 创建一个临时的下载链接
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
@@ -207,4 +207,75 @@ function downloadData(formUuid, tenantUuid) {
     .catch(error => console.error('Error:', error));
 }
     </script>
+<script>
+    document.querySelector('.copy-btn').addEventListener('click', function() {
+        fetch(`/api/submission/id/<%= formUuid %>/oas`)
+            .then(response => response.text())
+            .then(data => {
+                navigator.clipboard.writeText(data).then(() => {
+                    this.textContent = 'Copied';
+                    setTimeout(() => {
+                        this.textContent = '拷贝';
+                    }, 3000);
+                });
+            })
+            .catch(error => console.error('Error:', error));
+    });
+
+    document.querySelector('.view-btn').addEventListener('click', function() {
+        fetch(`/api/submission/id/<%= formUuid %>/oas`)
+            .then(response => response.text())
+            .then(data => {
+                const modal = document.createElement('div');
+                modal.style.position = 'fixed';
+                modal.style.top = '50%';
+                modal.style.left = '50%';
+                modal.style.transform = 'translate(-50%, -50%)';
+                modal.style.backgroundColor = '#fff';
+                modal.style.padding = '20px';
+                modal.style.zIndex = '1000';
+                modal.style.width = '80%';
+                modal.style.maxWidth = '600px';
+                modal.style.height = '80%';
+                modal.style.maxHeight = '600px';
+                modal.style.overflow = 'auto';
+                modal.innerHTML = `
+                    <pre><code class="language-yaml">${data}</code></pre>
+                    <div style="display: flex; justify-content: center; align-items: center; position: relative;">
+                        <button class="btn btn-secondary m-1 copy-btn-modal">Copy OpenAPI</button>
+                        <button class="btn btn-secondary m-1 cancel-btn-modal" style="position: absolute; right: 10px;">Cancel</button>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+
+                Prism.highlightElement(modal.querySelector('code'));
+
+                const closeButton = document.createElement('button');
+                closeButton.textContent = 'Close';
+                closeButton.style.position = 'absolute';
+                closeButton.style.top = '10px';
+                closeButton.style.right = '10px';
+                closeButton.addEventListener('click', () => {
+                    document.body.removeChild(modal);
+                });
+                modal.appendChild(closeButton);
+
+                // 为模态窗口中的拷贝按钮添加点击事件
+                modal.querySelector('.copy-btn-modal').addEventListener('click', function() {
+                    navigator.clipboard.writeText(data).then(() => {
+                        this.textContent = 'Copied';
+                        setTimeout(() => {
+                            this.textContent = 'Copy OpenAPI';
+                        }, 3000);
+                    });
+                });
+
+                // 为模态窗口中的取消按钮添加点击事件
+                modal.querySelector('.cancel-btn-modal').addEventListener('click', function() {
+                    document.body.removeChild(modal);
+                });
+            })
+            .catch(error => console.error('Error:', error));
+    });
+</script>
 <%- include('partials/footer') %>

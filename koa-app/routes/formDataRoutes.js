@@ -13,4 +13,9 @@ router.delete('/formData/:id', formDataController.deleteFormData);
 
 router.get('/download/:uuid', formDataController.downloadFormData);
 
+router.post('/formData/uuid/:uuid', formDataController.createFormDataByUuid);
+router.post('/formData/uuid/:uuid/data', formDataController.createFormDataByUuidWithData);
+
+router.get('/submission/id/:uuid/oas', formDataController.getFormOas);
+
 module.exports = router;

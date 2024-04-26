@@ -31,8 +31,8 @@
   "scripts": {
     "test": "mocha tests/**/*.test.js --exit",
     "test:tenant": "mocha tests/tenantService.test.js --exit",
-    "start": "node koa-app/app.js",
-    "dev": "nodemon koa-app/app.js",
+    "start": "node -r dotenv/config koa-app/app.js dotenv_config_path=.env.production",
+    "dev": "nodemon -r dotenv/config koa-app/app.js dotenv_config_path=.env.development",
     "start-postgres": "node koa-app/app.js --db=postgres"
   }
 }

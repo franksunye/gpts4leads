@@ -1,4 +1,5 @@
 const logger = require('../shared/utils/logger'); 
+require('dotenv').config();
 
 // 处理命令行参数
 const args = process.argv.slice(2);
@@ -61,12 +62,10 @@ const CONFIG = {
 
 app.use(session(CONFIG, app));
 
-// 设置模板引擎
 app.use(views(path.join(__dirname, '/views'), {
   extension: 'ejs'
 }));
 
- // 使用koa-bodyparser中间件来解析JSON和表单数据
  app.use(bodyParser({
   enableTypes: ['json', 'form'], 
   raw: true, // 启用raw选项以获取原始请求体

@@ -50,14 +50,15 @@ const getFormDataById = (formId) => {
     .select("*");
 };
 
-const getFormDataByIdWithPagination = (formId, offset = 0, limit = 10) => {
+const getFormDataByIdWithPagination = (formId, offset = 0, limit = 10, sortOrder = 'desc') => {
   return knex("FormData")
-    .where("FormID", formId)
-    .andWhere("IsDeleted", false)
-    .offset(offset)
-    .limit(limit)
-    .select("*");
-};
+     .where("FormID", formId)
+     .andWhere("IsDeleted", false)
+     .offset(offset)
+     .limit(limit)
+     .orderBy("CreatedAt", sortOrder)
+     .select("*");
+ };
 
 const getFormDataByUuidWithPagination = (uuid, offset = 0, limit = 10) => {
   return knex("FormData")
