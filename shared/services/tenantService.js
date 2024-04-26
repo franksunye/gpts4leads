@@ -1,4 +1,6 @@
 const tenantModel = require("../models/tenantModel");
+const tenantPlanModel = require('../models/tenantPlanModel');
+const planModel = require('../models/planModel');
 const logger = require("../utils/logger");
 
 async function setStripeCustomerIdForTenant(tenantId, stripeCustomerId) {
@@ -53,9 +55,28 @@ async function findTenantIdByUuid(tenantUuid) {
   }
 }
 
+async function getPlanDetailsByTenantUUID(tenantUUID) {
+  try {
+     logger.info(`[tenantService.js] getPlanDetailsByTenantUUID: Starting to fetch plan details for tenantUUID: ${tenantUUID}`);
+ 
+     const tenantId = await this.findTenantIdByUuid(tenantUUID);
+     const planId = await tenantPlanModel.getPlanIdByTenantId(tenantId);
+     const planDetails = await planModel.findById(planId);
+     
+     logger.info(`[tenantService.js] getPlanDetailsByTenantUUID: Successfully fetched plan details for tenantUUID: ${tenantUUID}`);
+ 
+     return planDetails;
+  } catch (error) {
+     logger.error(`[tenantService.js] getPlanDetailsByTenantUUID: Error fetching plan details for tenantUUID: ${tenantUUID}. Error: ${error.message}`);
+     throw error; // 或者处理错误的其他方式
+  }
+ }
+ 
+
 module.exports = {
  setStripeCustomerIdForTenant,
  findTenantByUserId,
  findTenantUuidByTenantId,
  findTenantIdByUuid,
+ getPlanDetailsByTenantUUID,
 };

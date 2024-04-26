@@ -37,7 +37,7 @@ const tenantPlansRoutes = require('./routes/tenantPlansRoutes');
 const billingsRoutes = require('./routes/billingsRoutes');
 const usageTrackingRoutes = require('./routes/usageTrackingRoutes');
 
-const adminDashboardRoutes = require('./routes/adminDashboardRoutes');
+const dashboardRoutes = require('./routes/dashboardRoutes');
 // const authRoutes = require('./routes/auth');
 const authRoutes = require('./routes/auth0');
 // const passwordRoutes = require('./routes/passwordRoutes');
@@ -89,7 +89,7 @@ app.use(tenantPlansRoutes.routes());
 app.use(billingsRoutes.routes());
 app.use(usageTrackingRoutes.routes());
 
-app.use(adminDashboardRoutes.routes());
+app.use(dashboardRoutes.routes());
 app.use(authRoutes.routes());
 // app.use(passwordRoutes.routes());
 app.use(subscriptionsRoutes.routes());

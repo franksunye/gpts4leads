@@ -12,11 +12,15 @@
     <script async src="https://js.stripe.com/v3/pricing-table.js"></script>
     <% if (subscription && subscription.plan) { %>
         <!-- 显示订阅信息 -->
-        <div>
-            <h2>Subscription Information</h2>
-            <p>Status: <%= subscription.status %></p>
-            <p>Plan: <%= subscription.plan %></p>
-            <p>Email: <%= userEmail %></p>
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">Subscription Information</h2>
+            </div>
+            <div class="card-body">
+                <p>Status: <strong><%= subscription.status %></strong></p>
+                <p>Plan: <strong><%= subscription.plan %></strong></p>
+                <p>Email: <strong><%= userEmail %></strong></p>
+            </div>
         </div>
     <% } else { %>
         <!-- 显示价格表 -->

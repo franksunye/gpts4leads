@@ -1,0 +1,223 @@
+<!-- views/createForm.ejs -->
+
+<%- include('partials/header', { title: 'Create Form' }) %>
+<%- include('partials/navbar') %>
+
+<div class="container">
+    <div class="mb-3"></div>
+
+    <h1>Create Form</h1>
+    <p>Fill out the form below to create a new form.</p>
+    
+    <div class="mb-3"></div>
+
+    <!-- 新的表单 -->
+    <form id="generateForm">
+        <div class="form-group">
+            <label for="generateInput">Generate Content</label>
+            <textarea class="form-control" id="generateInput" rows="2" placeholder="Enter content to generate form fields"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary" id="generateBtn">
+            <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+             Generate - (
+             <span id="planUsageInfo" class="ml-2"></span> )
+        </button>
+    </form>
+
+
+    <!-- 原有表单 -->
+    <form id="createForm" action="/forms/tenant/<%= tenantUuid %>" method="post">
+        <div class="form-group">
+            <label for="formName">Form Name</label>
+            <input type="text" class="form-control" id="formName" name="formName" placeholder="Enter form name" required readonly>
+        </div>
+        <div class="form-group">
+            <label for="formDescription">Description</label>
+            <textarea class="form-control" id="formDescription" name="formDescription" rows="2" placeholder="Enter form description" readonly></textarea>
+        </div>
+        <div class="form-group">
+            <label for="formFields">Fields</label>
+                <!-- 自定义输入框 -->
+            <div id="customInput" class="form-control" contenteditable="true" style="height: auto; min-height: 2rem;"></div>
+
+            <textarea class="form-control" id="formFields" name="formFields" rows="3" placeholder="Enter form fields (e.g., field1, field2, ...)" style="display: none;"></textarea>
+        </div>
+        <input type="hidden" id="tenantUuid" name="tenantUuid" value="<%= tenantUuid %>">
+        <button type="submit" class="btn btn-primary">Create Form</button>
+    </form>
+</div>
+<div class="modal fade" id="confirmModal" tabindex="-1" role="dialog" aria-labelledby="confirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmModalLabel">Confirm Form Submission</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to submit this form?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" id="cancelSubmit">Cancel</button>
+                <button type="button" class="btn btn-primary" id="confirmSubmit">Submit</button>
+            </div>
+        </div>
+    </div>
+</div>
+<%- include('partials/footer') %>
+
+<script>
+document.getElementById('generateForm').addEventListener('submit', async function(event) {
+    event.preventDefault();
+
+    // 清空 createForm 的内容
+    document.getElementById('formName').value = '';
+    document.getElementById('formDescription').value = '';
+    document.getElementById('customInput').innerHTML = ''; // 清空 contenteditable 的 div
+    document.getElementById('formFields').value = ''; // 清空隐藏的 textarea
+
+    // 显示加载指示器
+    const generateBtn = document.getElementById('generateBtn');
+    generateBtn.classList.add('disabled'); // 禁用按钮
+    generateBtn.querySelector('.spinner-border').classList.remove('d-none'); // 显示加载指示器
+
+    // 模拟异步操作（例如，API 请求）
+    await new Promise(resolve => setTimeout(resolve, 3000)); // 等待3秒
+
+    // 恢复按钮的原状
+    generateBtn.classList.remove('disabled'); // 启用按钮
+    generateBtn.querySelector('.spinner-border').classList.add('d-none'); // 隐藏加载指示器
+    
+    const input = document.getElementById('generateInput').value;
+    const tenantUuid = document.getElementById('tenantUuid').value;
+
+    const response = await fetch(`/api/generate-content/${tenantUuid}?content=${encodeURIComponent(input)}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    });
+    const data = await response.json();
+    document.getElementById('formName').value = data.data.formName;
+    document.getElementById('formDescription').value = data.data.formDescription;
+    const formFieldsString = data.data.formFields.map(field => field.name).join(', ');
+    document.getElementById('formFields').value = formFieldsString;
+
+    // 清除旧标签
+    const container = document.getElementById('customInput');
+    container.innerHTML = '';
+    // 创建新标签
+    data.data.formFields.forEach(field => {
+        const tag = document.createElement('span');
+        tag.textContent = field.name;
+        tag.classList.add('badge', 'badge-primary', 'mr-2'); // Bootstrap 标签样式
+        container.appendChild(tag);
+    });
+    usage = await fetchUsageData(tenantUuid);
+    const planUsageInfoElement = document.getElementById('planUsageInfo');
+    planUsageInfoElement.textContent = `${usage.LLMCallCount}/${planDetails.MaxLLMCalls}`;    
+});
+</script>
+<script>
+    document.getElementById('createForm').addEventListener('submit', async function(event) {
+        event.preventDefault(); // 阻止表单的默认提交行为
+        $('#confirmModal').modal('show'); // 显示确认模态框
+    });
+    
+    document.getElementById('confirmSubmit').addEventListener('click', async function() {
+        $('#confirmModal').modal('hide'); // 隐藏确认模态框
+    
+        const tenantUuid = document.getElementById('tenantUuid').value;
+    
+        // 收集表单数据
+        const formName = document.getElementById('formName').value;
+        const formDescription = document.getElementById('formDescription').value;
+        const formFields = document.getElementById('formFields').value.split(', ').map(name => ({
+            name: name,
+            type: 'text', // 假设所有字段类型都是 'text'，您可以根据需要调整
+            createdBy: 'user123' // 假设所有字段都是由 'user123' 创建的，您可以根据需要调整
+        }));
+    
+        // 格式化为所需的 JSON 格式
+        const payload = {
+            formName: formName,
+            formDescription: formDescription,
+            formFields: formFields
+        };
+    
+        // 发送 POST 请求
+        try {
+            const response = await fetch(`/api/forms/tenant/${tenantUuid}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(payload),
+            });
+    
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+    
+            const data = await response.json();
+            console.log('Form created successfully:', data);
+            window.location.href = `/forms/${tenantUuid}`;
+
+        } catch (error) {
+            console.error('Error creating form:', error);
+        }
+    });
+    </script>
+<script>
+    document.getElementById('cancelSubmit').addEventListener('click', function() {
+        $('#confirmModal').modal('hide'); // 隐藏确认模态框
+    });
+    </script>
+    <script>
+        $('.close').on('click', function() {
+            $('#confirmModal').modal('hide');
+        });
+        </script>
+<script>
+    document.getElementById('customInput').setAttribute('contenteditable', 'false');
+    </script>
+<script>
+    // 假设你已经将套餐详情传递给了页面，并且存储在一个变量中
+    const planDetails = <%- JSON.stringify(planDetails) %>;
+    let usage = 0; // 假设这是当前的使用情况
+    // Function to fetch usage data from the API
+    async function fetchUsageData(tenantUUID) {
+        try {
+            const response = await fetch(`/api/usageTracking/tenant/${tenantUUID}`);
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            const data = await response.json();
+            return data; // Assuming the API returns the usage count directly
+        } catch (error) {
+            console.error('Error fetching usage data:', error);
+            return 0; // Return 0 as a fallback
+        }
+    }
+    // 在页面加载时，更新套餐和使用情况信息
+    document.addEventListener('DOMContentLoaded', async function() {
+        const tenantUuid = document.getElementById('tenantUuid').value;
+        usage = await fetchUsageData(tenantUuid);
+        const planUsageInfoElement = document.getElementById('planUsageInfo');
+        planUsageInfoElement.textContent = `${usage.LLMCallCount}/${planDetails.MaxLLMCalls}`;
+
+});
+</script>
+<style>
+
+.form-group {
+    margin-bottom: 10px; /* 增加间距 */
+}
+.badge {
+    margin-right: 5px;
+    margin-bottom: 5px;
+    padding: 5px 10px;
+    font-size: 12px;
+}
+</style>

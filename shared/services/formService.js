@@ -1,5 +1,7 @@
 // formService.js
 const FormModel = require('../models/formModel');
+const FieldModel = require('../models/fieldModel');
+
 const logger = require('../utils/logger'); 
 
 const tenantService = require('../services/tenantService');
@@ -96,3 +98,40 @@ exports.getFormsByTenantIdWithPagination = async (tenantId, offset, limit = 10) 
       throw error;
    }
   };
+
+  exports.createFormAndFields = async (tenantUuid, formData, fieldsData) => {
+   try {
+      logger.info(`[formService.js] createFormAndFields: Creating form and fields for tenantUuid: ${tenantUuid}`);
+
+      const tenantId = await tenantService.findTenantIdByUuid(tenantUuid);
+      const form = await FormModel.create({
+           Name: formData.name,
+           Description: formData.description,
+           TenantID: tenantId, 
+           CreatedBy: formData.createdBy, 
+       });
+       const formId = form[0];
+
+       logger.info(`[formService.js] createFormAndFields: Form created successfully with FormID: ${formId}`);
+
+       const formUUID = await FormModel.findUUIDByFormId(formId);
+
+       for (const fieldData of fieldsData) {
+           await FieldModel.create({
+               FormID: formId,
+               Name: fieldData.name,
+               Type: fieldData.type,
+               CreatedBy: fieldData.createdBy, 
+           });
+           logger.info(`[formService.js] createFormAndFields: Field created successfully for FormID: ${formId}`);
+       }
+
+       return {
+           message: 'Form and fields created successfully',
+           formUuid: formUUID.UUID, // 返回form的UUID
+         };
+   } catch (error) {
+      logger.error(`[formService.js] createFormAndFields: Error creating form and fields for tenantUuid: ${tenantUuid}. Error: ${error.message}`);
+      throw new Error(`Error creating form and fields: ${error.message}`);
+   }
+};

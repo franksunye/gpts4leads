@@ -79,10 +79,17 @@ const fetchFormsWithDataCount = async (tenantId, offset, limit) => {
      .andWhere('f.IsDeleted', false)
      .select('f.*', knex.raw('COUNT(fd.EntryID) as formDataCount'))
      .groupBy('f.FormID')
+     .orderBy('f.CreatedAt', 'desc')
      .offset(offset)
      .limit(limit);
  };
- 
+
+ const findUUIDByFormId = async (formId) => {
+  return knex('Forms')
+     .select('UUID')
+     .where('FormID', formId)
+     .first();
+ };
 
 module.exports = {
   create,
@@ -98,4 +105,5 @@ module.exports = {
   softDelete,
   softDeleteMany,
   fetchFormsWithDataCount,
+  findUUIDByFormId,
 };

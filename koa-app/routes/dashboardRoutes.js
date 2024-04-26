@@ -1,16 +1,17 @@
-// adminDashboardRoutes.js
+// dashboardRoutes.js
 const Router = require('koa-router');
 const logger = require('../../shared/utils/logger');
 const formService = require('../../shared/services/formService');
 const formDataService = require('../../shared/services/formDataService');
 const fieldService = require('../../shared/services/fieldService');
+const tenantService = require('../../shared/services/tenantService');
 
 const router = new Router();
 
 // 权限检查中间件
 async function checkAuth(ctx, next) {
   if (!ctx.session.user) { // 假设使用session存储登录状态
-    logger.info('[adminDashboardRoutes.js] checkAuth: User not authenticated, redirecting to login');
+    logger.info('[dashboardRoutes.js] checkAuth: User not authenticated, redirecting to login');
     ctx.redirect('/login');
   } else {
     await next();
@@ -20,10 +21,10 @@ async function checkAuth(ctx, next) {
 //   根目录路由处理函数
 router.get('/', async (ctx) => {
   if (ctx.session.user) {
-    logger.info(`[adminDashboardRoutes.js] Root route: User is authenticated, redirecting to home`);
+    logger.info(`[dashboardRoutes.js] Root route: User is authenticated, redirecting to home`);
     ctx.redirect(`/home/${ctx.session.user.tenantUuid}`);
   } else {
-    logger.info('[adminDashboardRoutes.js] Root route: User not authenticated, redirecting to login');
+    logger.info('[dashboardRoutes.js] Root route: User not authenticated, redirecting to login');
     ctx.redirect('/login');
   }
 });
@@ -40,7 +41,7 @@ router.get('/home/:tenantUuid', checkAuth, async (ctx) => {
      const formDataCountByDateRangeAndUniqueField = await formDataService.getFormDataCountByDateRangeAndUniqueField(tenantId, "Email", "2024-01-01", "2024-12-31");
      const formCount = await formService.countFormsByTenantId(tenantId);
 
-     logger.info(`[adminDashboardRoutes.js] Home route: Rendering home page for tenantUuid: ${tenantUuid}`);
+     logger.info(`[dashboardRoutes.js] Home route: Rendering home page for tenantUuid: ${tenantUuid}`);
      await ctx.render('index', {
        title: 'Admin Dashboard',
        user: ctx.session.user || null,
@@ -53,7 +54,7 @@ router.get('/home/:tenantUuid', checkAuth, async (ctx) => {
        formCount
      });
   } catch (error) {
-     logger.error(`[adminDashboardRoutes.js] Home route: Error rendering home page for tenantId: ${tenantId}. Error: ${error.message}`);
+     logger.error(`[dashboardRoutes.js] Home route: Error rendering home page for tenantId: ${tenantId}. Error: ${error.message}`);
      throw error;
   }
  });
@@ -100,7 +101,29 @@ router.get('/forms/:tenantUuid', checkAuth, async (ctx) => {
          total,total,
      });
   } catch (error) {
-     logger.error(`[adminDashboardRoutes.js] Forms route: Error fetching forms for tenantId: ${tenantId}. Error: ${error.message}`);
+     logger.error(`[dashboardRoutes.js] Forms route: Error fetching forms for tenantId: ${tenantId}. Error: ${error.message}`);
+     throw error;
+  }
+ });
+
+router.get('/forms/:tenantUuid/create', checkAuth, async (ctx) => {
+  const tenantUuid = ctx.params.tenantUuid;
+  const tenantId = ctx.session.user.tenantId; // 假设租户ID是从session中获取的
+ 
+  try {
+     logger.info(`[dashboardRoutes.js] Create Form route: Rendering create form page for tenantUuid: ${tenantUuid}`);
+
+     const planDetails = await tenantService.getPlanDetailsByTenantUUID(tenantUuid);
+
+     await ctx.render('createForm', {
+       title: 'Create Form',
+       user: ctx.session.user || null,
+       tenantId: tenantId,
+       tenantUuid: tenantUuid,
+       planDetails: planDetails,
+     });
+  } catch (error) {
+     logger.error(`[dashboardRoutes.js] Create Form route: Error rendering create form page for tenantUuid: ${tenantUuid}. Error: ${error.message}`);
      throw error;
   }
  });
@@ -113,11 +136,11 @@ router.get('/forms/:tenantUuid', checkAuth, async (ctx) => {
   const offset = (page - 1) * limit; // 计算偏移量
 
   try {
-      logger.info(`[adminDashboardRoutes.js] Submission route: Rendering submission page for tenantId: ${tenantId}`);
+      logger.info(`[dashboardRoutes.js] Submission route: Rendering submission page for tenantId: ${tenantId}`);
 
       const formId = await formService.getFormIdByUuid(formUuid);
       const formData = await formDataService.getFormDataByIdWithPagination(formId, offset, limit);
-      // logger.debug(`[adminDashboardRoutes.js] Form data for formId: ${formId} - ${JSON.stringify(formData, null, 2)}`);
+      // logger.debug(`[dashboardRoutes.js] Form data for formId: ${formId} - ${JSON.stringify(formData, null, 2)}`);
       const total = await formDataService.countFormDataByFormId(formId);
       const totalPages = Math.ceil(total / limit);
 
@@ -138,7 +161,7 @@ router.get('/forms/:tenantUuid', checkAuth, async (ctx) => {
           fields: fields
       });
   } catch (error) {
-      logger.error(`[adminDashboardRoutes.js] Form submission route: Error rendering form submission page for tenantId: ${tenantId} and formId: ${formId}. Error: ${error.message}`);
+      logger.error(`[dashboardRoutes.js] Form submission route: Error rendering form submission page for tenantId: ${tenantId} and formId: ${formId}. Error: ${error.message}`);
       throw error;
   }
 });
@@ -146,9 +169,9 @@ router.get('/forms/:tenantUuid', checkAuth, async (ctx) => {
 router.get('/account/:tenantUuid', checkAuth, async (ctx) => {
   const tenantId = ctx.session.user.tenantId;
   try {
-     logger.info(`[adminDashboardRoutes.js] Account route: Rendering account page for tenantId: ${tenantId}`);
+     logger.info(`[dashboardRoutes.js] Account route: Rendering account page for tenantId: ${tenantId}`);
      const userEmail = ctx.session.user.email;
-     logger.debug(`[adminDashboardRoutes.js] Account route: User email for tenantId ${tenantId}: ${userEmail}`);
+     logger.debug(`[dashboardRoutes.js] Account route: User email for tenantId ${tenantId}: ${userEmail}`);
 
      await ctx.render('account', {
        title: 'Account & Billing',
@@ -159,18 +182,18 @@ router.get('/account/:tenantUuid', checkAuth, async (ctx) => {
        userEmail: userEmail
      });
   } catch (error) {
-     logger.error(`[adminDashboardRoutes.js] Account route: Error rendering account page for tenantId: ${tenantId}. Error: ${error.message}`);
+     logger.error(`[dashboardRoutes.js] Account route: Error rendering account page for tenantId: ${tenantId}. Error: ${error.message}`);
      throw error;
   }
  });
 
 router.get('/logout/:tenantUuid', async (ctx) => {
   try {
-     logger.info(`[adminDashboardRoutes.js] Logout route: Clearing user session for tenantId: ${ctx.params.tenantId}`);
+     logger.info(`[dashboardRoutes.js] Logout route: Clearing user session for tenantId: ${ctx.params.tenantId}`);
      ctx.session = null;
      ctx.redirect('/login');
   } catch (error) {
-     logger.error(`[adminDashboardRoutes.js] Logout route: Error clearing user session for tenantId: ${ctx.params.tenantId}. Error: ${error.message}`);
+     logger.error(`[dashboardRoutes.js] Logout route: Error clearing user session for tenantId: ${ctx.params.tenantId}. Error: ${error.message}`);
      throw error;
   }
  });

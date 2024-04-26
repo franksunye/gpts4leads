@@ -4,6 +4,7 @@ const FormModel = require("../../shared/models/formModel");
 const FormDataModel = require("../../shared/models/formDataModel");
 const formService = require("../../shared/services/formService");
 const logger = require("../../shared/utils/logger");
+const usageTrackingService = require("../../shared/services/usageTrackingService"); // 确保引入了正确的服务
 
 exports.createForm = async (ctx) => {
   try {
@@ -137,3 +138,38 @@ exports.deleteFormAndData = async (ctx) => {
     ctx.body = { message: "Error marking form and its data as deleted", error };
   }
 };
+
+exports.createFormAndFields = async (ctx) => {
+  const { tenantUuid } = ctx.params;
+  const { formName, formDescription, formFields } = ctx.request.body;
+ 
+  try {
+       logger.info(`[formsController.js] createFormAndFields: Creating form and fields for tenantUuid: ${tenantUuid}`);
+       logger.info(`[formsController.js] createFormAndFields: formFields: ${JSON.stringify(formFields)}`);
+ 
+       const result = await formService.createFormAndFields(tenantUuid, {
+           name: formName,
+           description: formDescription,
+           createdBy: ctx.session.user.username,
+       }, formFields); // 使用解析后的fields
+ 
+       logger.info(`[formsController.js] createFormAndFields: Form and fields created successfully for tenantUuid: ${tenantUuid}`);
+
+       const tenantUsage = await usageTrackingService.getUsageByTenantUUID(tenantUuid);
+       if (!tenantUsage) {
+           throw new Error('Tenant usage not found');
+       }
+       tenantUsage.FormCount += 1;
+       await usageTrackingService.updateUsageByTenantUUID(tenantUuid, { FormCount: tenantUsage.FormCount });
+
+       ctx.body = result;
+       ctx.status = 201;
+  } catch (error) {
+     logger.error(`[formsController.js] createFormAndFields: Error creating form and fields for tenantUuid: ${tenantUuid}. Error: ${error.message}`);
+     ctx.body = {
+           message: 'Error creating form and fields',
+           error: error.message,
+       };
+       ctx.status = 500;
+  }
+ };

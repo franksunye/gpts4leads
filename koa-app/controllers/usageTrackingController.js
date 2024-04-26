@@ -1,4 +1,5 @@
 const UsageTrackingModel = require('../../shared/models/usageTrackingModel');
+const usageTrackingService = require('../../shared/services/usageTrackingService');
 
 exports.createUsageTracking = async (ctx) => {
   try {
@@ -70,3 +71,9 @@ exports.deleteUsageTracking = async (ctx) => {
     ctx.body = { message: error.message };
   }
 };
+
+exports.getUsageByTenantUUID = async (ctx) => {
+  const { tenantUUID } = ctx.params;
+  const usages = await usageTrackingService.getUsageByTenantUUID(tenantUUID);
+  ctx.body = usages;
+ }
