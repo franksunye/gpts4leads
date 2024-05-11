@@ -112,6 +112,8 @@ document.getElementById('generateForm').addEventListener('submit', async functio
         const tag = document.createElement('span');
         tag.textContent = field.name;
         tag.classList.add('badge', 'badge-primary', 'mr-2'); // Bootstrap 标签样式
+        tag.setAttribute('data-toggle', 'tooltip'); // 启用工具提示
+        tag.setAttribute('title', field.description); // 设置工具提示文本为 field.description
         container.appendChild(tag);
     });
     usage = await fetchUsageData(tenantUuid);
@@ -208,6 +210,11 @@ document.getElementById('generateForm').addEventListener('submit', async functio
         planUsageInfoElement.textContent = `${usage.LLMCallCount}/${planDetails.MaxLLMCalls}`;
 
 });
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function(){
+        $('[data-toggle="tooltip"]').tooltip(); // 初始化工具提示
+    });
 </script>
 <style>
 
