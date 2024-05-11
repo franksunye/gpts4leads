@@ -17,5 +17,6 @@ router.post('/formData/uuid/:uuid', formDataController.createFormDataByUuid);
 router.post('/formData/uuid/:uuid/data', formDataController.createFormDataByUuidWithData);
 
 router.get('/submission/id/:uuid/oas', formDataController.getFormOas);
+router.get('/formData/getAllDataFieldsByTenantId/:tenantId', formDataController.getAllDataFieldsByTenantId);
 
 module.exports = router;

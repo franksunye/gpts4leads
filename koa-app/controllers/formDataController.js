@@ -157,11 +157,11 @@ exports.createFormDataByUuid = async (ctx) => {
   let requiredFields = [];
   let properties = {};
   formFields.forEach(field => {
-   requiredFields.push(field.Name); 
-   properties[field.Name] = { 
-      type: field.Type, 
-      description: field.Description,
-      format: field.Format,
+   requiredFields.push(field.name); 
+   properties[field.name] = { 
+      type: field.type, 
+      description: field.description,
+      format: field.format,
    };
   });
 
@@ -240,3 +240,15 @@ ${propertiesString}
   ctx.type = 'text/yaml'; 
   ctx.body = oasTemplate;
  };
+
+ exports.getAllDataFieldsByTenantId = async (ctx) => {
+  try {
+    const tenantId = ctx.params.tenantId;
+    const dataFields = await FormDataModel.getAllDataFieldsByTenantId(tenantId);
+    ctx.status = 200;
+    ctx.body = dataFields;
+  } catch (error) {
+    ctx.status = 500;
+    ctx.body = { message: error.message };
+  }
+};

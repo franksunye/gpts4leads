@@ -21,6 +21,8 @@ exports.getFormDataByIdWithPagination = async (formId, offset, limit = 10) => {
     try {
         logger.info(`[formDataService.js] getFormDataByIdWithPagination: Fetching form data for formId: ${formId}`);
         let formData = await FormDataModel.getFormDataByIdWithPagination(formId, offset, limit);
+        console.log('formData:', formData); // 打印获取的formData
+
         // 转换数据结构
         formData = exports.transformFormData(formData);
         logger.debug(`[formDataService.js] getFormDataByIdWithPagination: Form data for formId: ${formId} - ${JSON.stringify(formData, null, 2)}`);
@@ -63,13 +65,13 @@ exports.countFormDataByFormId = async (formId) => {
 exports.transformFormData = (formDataArray) => {
     return formDataArray.map(formData => {
         // 解析Data字段中的JSON字符串
-        const parsedData = JSON.parse(formData.Data);
+        const parsedData = JSON.parse(formData.data);
         // 合并解析后的数据和原始对象
         return {
             ...formData,
             ...parsedData,
             // 移除原始的Data字段
-            Data: undefined
+            data: undefined
         };
     });
 };
@@ -91,7 +93,21 @@ exports.countFormDataByTenantId = async (tenantId) => {
 exports.countUniqueFieldByTenantId = async (tenantId, fieldName) => {
     try {
         logger.info(`[formDataService.js] countUniqueFieldByTenantId: Counting unique ${fieldName} for tenantId: ${tenantId}`);
-        const count = await FormDataModel.countUniqueFieldByTenantId(tenantId, fieldName);
+        const allDataFields = await FormDataModel.getAllDataFieldsByTenantId(tenantId);
+        // logger.debug(`[formDataService.js] countUniqueFieldByTenantId: Retrieved all data fields for tenantId ${tenantId}: ${JSON.stringify(allDataFields, null, 2)}`);
+
+        // 根据传入的fieldName从数据中提取相应的字段值
+        const fieldValues = allDataFields.map(data => {
+            const parsedData = JSON.parse(data);
+            return parsedData[fieldName];
+          });
+        // logger.debug(`[formDataService.js] countUniqueFieldByTenantId: Extracted field values for fieldName ${fieldName}: ${JSON.stringify(fieldValues, null, 2)}`);
+
+        // 计算这些值的唯一数量
+        const uniqueFieldValues = [...new Set(fieldValues)];
+        // logger.debug(`[formDataService.js] countUniqueFieldByTenantId: Unique field values for fieldName ${fieldName}: ${JSON.stringify(uniqueFieldValues, null, 2)}`);
+
+        const count = uniqueFieldValues.length;
         logger.info(`[formDataService.js] countUniqueFieldByTenantId: Count of unique ${fieldName} for tenantId ${tenantId}: ${count}`);
         logger.info(`[formDataService.js] countUniqueFieldByTenantId: Successfully counted unique ${fieldName} for tenantId: ${tenantId}`);
         return count;
