@@ -159,8 +159,8 @@ exports.createFormAndFields = async (ctx) => {
        if (!tenantUsage) {
            throw new Error('Tenant usage not found');
        }
-       tenantUsage.FormCount += 1;
-       await usageTrackingService.updateUsageByTenantUUID(tenantUuid, { FormCount: tenantUsage.FormCount });
+       tenantUsage.form_count += 1;
+       await usageTrackingService.updateUsageByTenantUUID(tenantUuid, { form_count: tenantUsage.form_count });
 
        ctx.body = result;
        ctx.status = 201;

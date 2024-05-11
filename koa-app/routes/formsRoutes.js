@@ -28,11 +28,11 @@ router.get('/generate-content/:tenantUuid', async (ctx) => {
     logger.info(`[formsRoutes.js] /forms/generate-content: Successfully generated content: ${JSON.stringify(mockData)}`);
 
     const usageData = await usageTrackingService.getUsageByTenantUUID(tenantUuid);
-    const LLMCallCount = usageData.LLMCallCount; // 假设usageData是一个对象，包含LLMCallCount字段
+    const LLMCallCount = usageData.llm_call_count; // 假设usageData是一个对象，包含LLMCallCount字段
 
     const newLLMCallCount = LLMCallCount + 1;
 
-    const newUsageData = { LLMCallCount: newLLMCallCount }; // 假设需要更新的数据结构
+    const newUsageData = { llm_call_count: newLLMCallCount }; // 假设需要更新的数据结构
     await usageTrackingService.updateUsageByTenantUUID(tenantUuid, newUsageData);
     
     ctx.body = mockData;

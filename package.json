@@ -33,6 +33,6 @@
     "test:tenant": "mocha tests/tenantService.test.js --exit",
     "start": "node -r dotenv/config koa-app/app.js dotenv_config_path=.env.production",
     "dev": "nodemon -r dotenv/config koa-app/app.js dotenv_config_path=.env.development",
-    "start-postgres": "node koa-app/app.js --db=postgres"
+    "start-postgres": "nodemon koa-app/app.js --db=postgres"
   }
 }

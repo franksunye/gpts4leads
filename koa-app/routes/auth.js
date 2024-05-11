@@ -39,7 +39,7 @@ router.post('/login', async (ctx, next) => {
 
  if (match) {
     // 如果使用session
-    ctx.session.user = { id: user.UserID, username: user.Username, tenantId: user.TenantID }; // 确保包含租户ID
+    ctx.session.user = { id: user.UserID, username: user.Username, tenantId: user.tenant_id }; // 确保包含租户ID
 
     // 如果使用JWT
     const token = jwt.sign({ id: user.UserID, username: user.Username }, 'yourSecretKey', { expiresIn: '1h' });

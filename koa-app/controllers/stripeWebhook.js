@@ -33,7 +33,7 @@ async function handleStripeWebhook(ctx) {
             if (user) {
                 // 使用用户的tenantId更新租户的Stripe客户ID
                 logger.debug(`[stripeWebhook.js] User found: ${JSON.stringify(user)}`);
-                tenantService.setStripeCustomerIdForTenant(user.TenantID, session.customer)
+                tenantService.setStripeCustomerIdForTenant(user.tenant_id, session.customer)
                     .then(() => {
                         logger.info(`[stripeWebhook.js] Tenant updated with customer ID: ${session.customer}`);
                     })

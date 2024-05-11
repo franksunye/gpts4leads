@@ -1,36 +1,36 @@
 const knex = require('../database');
 
 const create = (tenantPlanData) => {
-  return knex('TenantPlans').insert(tenantPlanData);
+  return knex('tenant_plans').insert(tenantPlanData);
 };
 
 const findAll = () => {
-  return knex('TenantPlans').select('*');
+  return knex('tenant_plans').insert(tenantPlanData);
 };
 
 const findById = (id) => {
-  return knex('TenantPlans').select('*').where('TenantPlanID', id).first();
+  return knex('tenant_plans').select('*').where('tenant_plan_id', id).first();
 };
 
 const update = (id, tenantPlanData) => {
-  return knex('TenantPlans').where('TenantPlanID', id).update(tenantPlanData);
+  return knex('tenant_plans').where('tenant_plan_id', id).update(tenantPlanData);
 };
 
 const remove = (id) => {
-  return knex('TenantPlans').where('TenantPlanID', id).del();
+  return knex('tenant_plans').where('tenant_plan_id', id).del();
 };
 
 const getPlanIdByTenantId = async (tenantId) => {
   try {
-     const tenantPlan = await knex('TenantPlans').where('TenantID', tenantId).first();
+     const tenantPlan = await knex('tenant_plans').where('tenant_id', tenantId).first();
      if (!tenantPlan) {
        throw new Error('Tenant plan not found');
      }
-     return tenantPlan.PlanID;
+     return tenantPlan.plan_id;
   } catch (error) {
      throw error; // 或者处理错误的其他方式
   }
- };
+};
 
 module.exports = {
   create,

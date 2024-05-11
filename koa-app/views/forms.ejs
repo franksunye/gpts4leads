@@ -31,10 +31,10 @@
                         <% forms.forEach(function(form) { %>
                             <tr>
                                 <td>
-                                    <a href="/submissions/<%= tenantUuid %>/form/<%= form.UUID %>" target="_blank"><%= form.Name %></a>
+                                    <a href="/submissions/<%= tenantUuid %>/form/<%= form.uuid %>" target="_blank"><%= form.name %></a>
                                 </td>
-                                <td><%= form.formDataCount %></td>
-                                <td><%= form.Description %></td>
+                                <td><%= form.form_data_count %></td>
+                                <td><%= form.description %></td>
                                 <td>
                                     <!-- <a href="/forms/<%= form.UUID %>/edit" class="btn btn-primary btn-sm">Edit</a> -->
                                     <!-- <a href="/forms/<%= form.UUID %>/delete" class="btn btn-danger btn-sm">Delete</a> -->

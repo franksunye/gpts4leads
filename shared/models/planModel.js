@@ -1,23 +1,23 @@
 const knex = require('../database');
 
 const create = (planData) => {
-  return knex('Plans').insert(planData);
+  return knex('plans').insert(planData);
 };
 
 const findAll = () => {
-  return knex('Plans').select('*');
+  return knex('plans').select('*');
 };
 
 const findById = (id) => {
-  return knex('Plans').select('*').where('PlanID', id).first();
+  return knex('plans').select('*').where('plan_id', id).first();
 };
 
 const update = (id, planData) => {
-  return knex('Plans').where('PlanID', id).update({ ...planData, UpdatedAt: knex.fn.now() });
+  return knex('plans').where('plan_id', id).update({...planData, updated_at: knex.fn.now() });
 };
 
 const remove = (id) => {
-  return knex('Plans').where('PlanID', id).del();
+  return knex('plans').where('plan_id', id).del();
 };
 
 module.exports = {

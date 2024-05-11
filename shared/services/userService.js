@@ -2,6 +2,8 @@ const crypto = require("crypto");
 const logger = require("../utils/logger");
 const userModel = require("../models/userModel");
 const tenantModel = require("../models/tenantModel");
+const tenantPlanModel = require("../models/tenantPlanModel");
+const usageTrackingModel = require("../models/usageTrackingModel");
 
 const bcrypt = require("bcrypt");
 const saltRounds = 10;
@@ -15,12 +17,12 @@ const createUserWithTenant = async (nickname, email) => {
   try {
     logger.info(`[userService.js] createUserWithTenant: Attempting to create tenant with name: ${nickname}`);
     const tenantCreationResult = await tenantModel.create({
-      Name: nickname,
+      name: nickname,
     });
     logger.info(`[userService.js] createUserWithTenant: Tenant creation result: ${JSON.stringify(tenantCreationResult)}`);
 
     // const tenantId = tenantCreationResult[0];
-    const tenantId = tenantCreationResult.TenantID;
+    const tenantId = tenantCreationResult.tenant_id;
     const tenant = await tenantModel.findById(tenantId);
     logger.info(`[userService.js] createUserWithTenant: Successfully created tenant with ID: ${tenantId}`);
 
@@ -29,14 +31,14 @@ const createUserWithTenant = async (nickname, email) => {
 
     logger.info(`[userService.js] createUserWithTenant: Attempting to create user with email: ${nickname} and email: ${email}`);
     const userCreationResult = await userModel.create({
-      Email: email,
-      Username: nickname,
-      Password: hashedPassword,
-      TenantID: tenantId,
+      email: email,
+      username: nickname,
+      password: hashedPassword,
+      tenant_id: tenantId,
     });
 
     // const userId = userCreationResult[0];
-    const userId = userCreationResult.UserID;
+    const userId = userCreationResult.user_id;
     const user = await userModel.findById(userId);
     logger.info(`[userService.js] createUserWithTenant: Successfully created user with ID: ${userId} and tenant with ID: ${tenantId}`);
 
@@ -46,6 +48,70 @@ const createUserWithTenant = async (nickname, email) => {
     };
   } catch (error) {
     logger.error(`[userService.js] createUserWithTenant: Error creating user with nickname: ${nickname} and email: ${email}. Error: ${error.message}`);
+    throw error;
+  }
+};
+
+const createUserWithTenantAndPlan = async (nickname, email, plan_id) => {
+  logger.info(`[userService.js] createUserWithTenantAndPlan: Starting to create user with nickname: ${nickname}, email: ${email}, and plan_id: ${plan_id}`);
+  try {
+    logger.info(`[userService.js] createUserWithTenantAndPlan: Attempting to create tenant with name: ${nickname}`);
+    const tenantCreationResult = await tenantModel.create({
+      name: nickname,
+    });
+    logger.info(`[userService.js] createUserWithTenantAndPlan: Tenant creation result: ${JSON.stringify(tenantCreationResult)}`);
+
+    const tenantId = tenantCreationResult.tenant_id;
+    const tenant = await tenantModel.findById(tenantId);
+    logger.info(`[userService.js] createUserWithTenantAndPlan: Successfully created tenant with ID: ${tenantId}`);
+
+    const password = generateRandomPassword();
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+    logger.info(`[userService.js] createUserWithTenantAndPlan: Attempting to create user with email: ${nickname} and email: ${email}`);
+    const userCreationResult = await userModel.create({
+      email: email,
+      username: nickname,
+      password: hashedPassword,
+      tenant_id: tenantId,
+    });
+
+    const userId = userCreationResult.user_id;
+    const user = await userModel.findById(userId);
+    logger.info(`[userService.js] createUserWithTenantAndPlan: Successfully created user with ID: ${userId} and tenant with ID: ${tenantId}`);
+
+    // Attempting to create tenant plan
+    logger.info(`[userService.js] createUserWithTenantAndPlan: Attempting to create tenant plan with plan_id: ${plan_id}`);
+    const currentDate = new Date();
+    const startDate = currentDate.toISOString().slice(0, 19).replace('T', ' ');
+    const endDate = new Date(currentDate.setMonth(currentDate.getMonth() + 12)).toISOString().slice(0, 19).replace('T', ' ');
+    const planCreationResult = await tenantPlanModel.create({
+      plan_id: plan_id,
+      tenant_id: tenantId,
+      start_date: startDate,
+      end_date: endDate,
+    });
+    logger.info(`[userService.js] createUserWithTenantAndPlan: Tenant plan creation result: ${JSON.stringify(planCreationResult)}`);
+
+    // Assuming the planCreationResult contains the planId of the newly created plan
+    const planId = planCreationResult.plan_id;
+    logger.info(`[userService.js] createUserWithTenantAndPlan: Successfully created tenant plan with ID: ${planId} for tenant with ID: ${tenantId}`);
+
+    const usageData = {
+      tenant_id: tenantId,
+      user_count: 1,
+      form_count: 0,
+      entry_count:0,
+    };
+    await usageTrackingModel.create(usageData);
+
+    return {
+      user: user,
+      tenant: tenant,
+      plan: planId, // Returning the planId as part of the response
+    };
+  } catch (error) {
+    logger.error(`[userService.js] createUserWithTenantAndPlan: Error creating user with nickname: ${nickname}, email: ${email}, and plan_id: ${plan_id}. Error: ${error.message}`);
     throw error;
   }
 };
@@ -122,7 +188,6 @@ const getUserById = async (userId) => {
     throw error;
   }
 };
-// 在 userService.js 文件中
 
 async function getTenantInfoByUserId(userId) {
   try {
@@ -135,8 +200,8 @@ async function getTenantInfoByUserId(userId) {
        throw new Error("User not found");
      }
  
-     // 假设用户信息中有一个 TenantID 字段，用于关联租户信息
-     const tenantId = user.TenantID;
+     // 假设用户信息中有一个 tenant_id 字段，用于关联租户信息
+     const tenantId = user.tenant_id;
      logger.debug(`[userService.js] getTenantInfoByUserId: Found tenant ID: ${tenantId} for userId: ${userId}`);
  
      // 使用 tenantModel 的 findById 方法获取租户信息
@@ -156,14 +221,6 @@ async function getTenantInfoByUserId(userId) {
   }
  }
  
- // 确保将 getTenantInfoByUserId 函数导出，以便在其他文件中使用
- module.exports = {
-  findUserByEmail,
-  createUserWithTenant,
-  getTenantInfoByUserId, // 添加这行
-  // 其他函数...
- };
-
 module.exports = {
   getUserByUsername,
   createUserWithTenant,
@@ -171,5 +228,6 @@ module.exports = {
   softDeleteUser,
   restoreUser,
   getUserById,
-  getTenantInfoByUserId
+  getTenantInfoByUserId,
+  createUserWithTenantAndPlan,
 };

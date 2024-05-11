@@ -38,7 +38,7 @@ async function findTenantByUserId(userId) {
 
 async function findTenantUuidByTenantId(tenantId) {
   const tenant = await tenantModel.findById(tenantId);
-  return tenant ? tenant.UUID : null;
+  return tenant ? tenant.uuid : null;
  }
 
 async function findTenantIdByUuid(tenantUuid) {
@@ -48,7 +48,7 @@ async function findTenantIdByUuid(tenantUuid) {
        logger.error(`[tenantService.js] findTenantIdByUuid: Tenant not found for tenantUuid: ${tenantUuid}`);
        throw new Error('Tenant not found');
      }
-     return tenant.TenantID;
+     return tenant.tenant_id;
   } catch (error) {
      logger.error(`[tenantService.js] findTenantIdByUuid: Error finding tenant ID for tenantUuid: ${tenantUuid}. Error: ${error.message}`);
      throw error;

@@ -6,26 +6,26 @@ const { generateSixDigitNumericUUID } = require('../utils/uuid');
 const create = async (tenantData) => {
   // let result = await knex('Tenants').insert(tenantData);
   const uuid = generateSixDigitNumericUUID();
-  const tenantDataWithUUID = { ...tenantData, UUID: uuid };
-  let result = await knex('Tenants').insert(tenantDataWithUUID);
+  const tenantDataWithUUID = { ...tenantData, uuid: uuid };
+  let result = await knex('tenants').insert(tenantDataWithUUID);
 
   if (process.env.DB_CLIENT === 'sqlite3') {
-     result = { TenantID: result[0] };
+    result = { tenant_id: result[0] };
   }
  
   if (process.env.DB_CLIENT === 'postgres') {
-     result = await knex('Tenants').where('Name', tenantData.Name).first();
+    result = await knex('tenants').where('name', tenantData.name).first();
   }
  
   return result;
  };
 
 const findAll = () => {
-  return knex('Tenants').select('*');
+  return knex('tenants').select('*');
 };
 
 const findById = (id) => {
-  return knex('Tenants').select('*').where('TenantID', id).first();
+  return knex('tenants').select('*').where('tenant_id', id).first();
 };
 
 // const findById = async (id) => {
@@ -33,17 +33,17 @@ const findById = (id) => {
 //  };
 
 const update = (id, tenantData) => {
-  return knex('Tenants')
-    .where('TenantID', id)
-    .update({ ...tenantData, UpdatedAt: knex.fn.now() });
+  return knex('tenants')
+   .where('tenant_id', id)
+   .update({...tenantData, updated_at: knex.fn.now() });
 };
 
 const remove = (id) => {
-  return knex('Tenants').where('TenantID', id).del();
+  return knex('tenants').where('tenant_id', id).del();
 };
 
 const findByUuid = async (tenantUuid) => {
-  return knex('Tenants').select('*').where('UUID', tenantUuid).first();
+  return knex('tenants').select('*').where('uuid', tenantUuid).first();
  };
 
 module.exports = {

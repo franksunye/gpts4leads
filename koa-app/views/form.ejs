@@ -18,7 +18,7 @@
         <div class="card-body">
             <div class="d-flex flex-wrap">
                 <% fields.forEach(function(field) { %>
-                    <span class="badge badge-primary m-1"><%= field.Name %></span>
+                    <span class="badge badge-primary m-1"><%= field.name %></span>
                 <% }); %>
             </div>
         </div>
@@ -46,7 +46,7 @@
                         <tr>
                             <th>UUID</th>
                             <% fields.forEach(function(field) { %>
-                                <th><%= field.Name %></th>
+                                <th><%= field.name %></th>
                             <% }); %>
                             <th>Created At</th>
                             <th>Actions</th>
@@ -55,11 +55,11 @@
                     <tbody>
                         <% formData.forEach(function(data) { %>
                             <tr>
-                                <td><%= data.UUID %></td>
+                                <td><%= data.uuid %></td>
                                 <% fields.forEach(function(field) { %>
-                                    <td><%= data[field.Name] %></td>
+                                    <td><%= data[field.name] %></td>
                                 <% }); %>
-                                <td><%= data.CreatedAt %></td>
+                                <td><%= data.created_at %></td>
                                 <td>
                                     <button class="btn btn-link" data-toggle="modal" data-target="#deleteModal" data-uuid="<%= data.UUID %>">Delete</button>
                                 </td>

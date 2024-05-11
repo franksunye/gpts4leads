@@ -118,7 +118,7 @@ document.getElementById('generateForm').addEventListener('submit', async functio
     });
     usage = await fetchUsageData(tenantUuid);
     const planUsageInfoElement = document.getElementById('planUsageInfo');
-    planUsageInfoElement.textContent = `${usage.LLMCallCount}/${planDetails.MaxLLMCalls}`;    
+    planUsageInfoElement.textContent = `${usage.llm_call_count}/${planDetails.max_llm_calls}`;    
 });
 </script>
 <script>
@@ -185,7 +185,7 @@ document.getElementById('generateForm').addEventListener('submit', async functio
     document.getElementById('customInput').setAttribute('contenteditable', 'false');
     </script>
 <script>
-    // 假设你已经将套餐详情传递给了页面，并且存储在一个变量中
+    // 将套餐详情传递给了页面，存储在变量中
     const planDetails = <%- JSON.stringify(planDetails) %>;
     let usage = 0; // 假设这是当前的使用情况
     // Function to fetch usage data from the API
@@ -207,7 +207,7 @@ document.getElementById('generateForm').addEventListener('submit', async functio
         const tenantUuid = document.getElementById('tenantUuid').value;
         usage = await fetchUsageData(tenantUuid);
         const planUsageInfoElement = document.getElementById('planUsageInfo');
-        planUsageInfoElement.textContent = `${usage.LLMCallCount}/${planDetails.MaxLLMCalls}`;
+        planUsageInfoElement.textContent = `${usage.llm_call_count}/${planDetails.max_llm_calls}`;
 
 });
 </script>

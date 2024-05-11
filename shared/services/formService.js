@@ -52,7 +52,7 @@ exports.getFormsByTenantIdWithPagination = async (tenantId, offset, limit = 10) 
         logger.error(`[formService.js] getFormIdByUuid: Form not found for formUuid: ${formUuid}`);
         return null; // 或者抛出一个错误
       }
-      const formId = form.FormID
+      const formId = form.form_id;
       logger.info(`[formService.js] getFormIdByUuid: Successfully fetched formId: ${formId} for formUuid: ${formUuid}`);
       return formId;
    } catch (error) {
@@ -105,10 +105,10 @@ exports.getFormsByTenantIdWithPagination = async (tenantId, offset, limit = 10) 
 
       const tenantId = await tenantService.findTenantIdByUuid(tenantUuid);
       const form = await FormModel.create({
-           Name: formData.name,
-           Description: formData.description,
-           TenantID: tenantId, 
-           CreatedBy: formData.createdBy, 
+           name: formData.name,
+           description: formData.description,
+           tenant_id: tenantId, 
+           created_by: formData.createdBy, 
        });
        const formId = form[0];
 
@@ -118,10 +118,10 @@ exports.getFormsByTenantIdWithPagination = async (tenantId, offset, limit = 10) 
 
        for (const fieldData of fieldsData) {
            await FieldModel.create({
-               FormID: formId,
-               Name: fieldData.name,
-               Type: fieldData.type,
-               CreatedBy: fieldData.createdBy, 
+               form_id: formId,
+               name: fieldData.name,
+               type: fieldData.type,
+               created_by: fieldData.createdBy, 
            });
            logger.info(`[formService.js] createFormAndFields: Field created successfully for FormID: ${formId}`);
        }

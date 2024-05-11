@@ -24,7 +24,7 @@ const knex = require("knex")({
           database: process.env.MYSQL_DATABASE,
         }
       : {
-          filename: process.env.DB_FILENAME || "./gpts4leads-saas-app.db",
+          filename: process.env.DB_FILENAME || "./leadgen-gpt-app.db",
         },
   useNullAsDefault: true,
   debug: false, // 开启调试模式

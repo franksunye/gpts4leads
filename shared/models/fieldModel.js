@@ -3,29 +3,29 @@ const { generateTwelveDigitUUID } = require('../utils/uuid');
 
 const create = (fieldData) => {
   const uuid = generateTwelveDigitUUID();
-  const fieldDataWithUUID = { ...fieldData, UUID: uuid };
+  const fieldDataWithUUID = { ...fieldData, uuid: uuid };
 
-  return knex('Fields').insert(fieldDataWithUUID);
+  return knex('fields').insert(fieldDataWithUUID);
 };
 
 const findAll = () => {
-  return knex('Fields').select('*');
+  return knex('fields').select('*');
 };
 
 const findById = (id) => {
-  return knex('Fields').select('*').where('FieldID', id).first();
+  return knex('fields').select('*').where('field_id', id).first();
 };
 
 const update = (id, fieldData) => {
-  return knex('Fields').where('FieldID', id).update({...fieldData, UpdatedAt: knex.fn.now()});
+  return knex('fields').where('field_id', id).update({...fieldData, updated_at: knex.fn.now()});
 };
 
 const remove = (id) => {
-  return knex('Fields').where('FieldID', id).del();
+  return knex('fields').where('field_id', id).del();
 };
 
 const findByFormId = (formId) => {
-  return knex('Fields').select('*').where('FormID', formId);
+  return knex('fields').where('form_id', formId).select('*');
  };
 
 module.exports = {

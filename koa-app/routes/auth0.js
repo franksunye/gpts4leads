@@ -61,19 +61,21 @@ router.get("/callback", async (ctx, next) => {
 
       if (!user) {
         logger.info(`[auth0.js] /callback: User not found, creating new user with email: ${email}`);
-        const { user: newUser } = await userService.createUserWithTenant(nickname, email);
+        // const { user: newUser } = await userService.createUserWithTenant(nickname, email);
+        const { user: newUser } = await userService.createUserWithTenantAndPlan(nickname, email, 1);
+        
         user = newUser;
       }
-     const tenantId = user.TenantID;
-     const tenantUuid = await tenantService.findTenantUuidByTenantId(user.TenantID);
+     const tenantId = user.tenant_id;
+     const tenantUuid = await tenantService.findTenantUuidByTenantId(tenantId);
 
-     await getSubscriptionInfoAndSaveToSession(ctx, user.UserID);
+     await getSubscriptionInfoAndSaveToSession(ctx, user.user_id);
 
      ctx.session.user = {
-        id: user.UserID,
-        email: user.Email,
-        nickname: user.Username,
-        tenantId: user.TenantID,
+        id: user.user_id,
+        email: user.email,
+        nickname: user.username,
+        tenantId: user.tenant_id,
         tenantUuid: tenantUuid,
         idToken: tokenSet.id_token,
         accessToken: tokenSet.access_token,

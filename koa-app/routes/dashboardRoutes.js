@@ -36,9 +36,9 @@ router.get('/home/:tenantUuid', checkAuth, async (ctx) => {
 
   try {
      const totalSubmissionCount = await formDataService.countFormDataByTenantId(tenantId);
-     const uniqueSubmissionCount = await formDataService.countUniqueFieldByTenantId(tenantId, "Email");
+     const uniqueSubmissionCount = await formDataService.countUniqueFieldByTenantId(tenantId, "email");
      const formDataCountByDateRange = await formDataService.getFormDataCountByDateRange(tenantId, "2024-01-01", "2024-12-31");
-     const formDataCountByDateRangeAndUniqueField = await formDataService.getFormDataCountByDateRangeAndUniqueField(tenantId, "Email", "2024-01-01", "2024-12-31");
+     const formDataCountByDateRangeAndUniqueField = await formDataService.getFormDataCountByDateRangeAndUniqueField(tenantId, "email", "2024-01-01", "2024-12-31");
      const formCount = await formService.countFormsByTenantId(tenantId);
 
      logger.info(`[dashboardRoutes.js] Home route: Rendering home page for tenantUuid: ${tenantUuid}`);
@@ -139,6 +139,8 @@ router.get('/forms/:tenantUuid/create', checkAuth, async (ctx) => {
       logger.info(`[dashboardRoutes.js] Submission route: Rendering submission page for tenantId: ${tenantId}`);
 
       const formId = await formService.getFormIdByUuid(formUuid);
+      logger.info(`[dashboardRoutes.js] Form ID: ${formId}`); // 打印formId的值
+
       const formData = await formDataService.getFormDataByIdWithPagination(formId, offset, limit);
       // logger.debug(`[dashboardRoutes.js] Form data for formId: ${formId} - ${JSON.stringify(formData, null, 2)}`);
       const total = await formDataService.countFormDataByFormId(formId);
